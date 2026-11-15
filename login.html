@@ -1,0 +1,218 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PARTNERKONTOR – Login</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #102943;
+  color: #26364a;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  padding: 22px 7%;
+  color: white;
+  border-bottom: 3px solid #c49b55;
+  font-size: 23px;
+  font-weight: bold;
+}
+
+header span {
+  color: #c49b55;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 35px 20px;
+}
+
+.login-box {
+  background: white;
+  width: 100%;
+  max-width: 440px;
+  padding: 38px;
+  border-radius: 12px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+}
+
+.login-box h1 {
+  text-align: center;
+  color: #102943;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #777;
+  margin-bottom: 30px;
+  font-size: 14px;
+}
+
+label {
+  display: block;
+  margin: 18px 0 7px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+input {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #d5dce4;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+input:focus {
+  outline: 2px solid #c49b55;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 25px;
+  background: #c49b55;
+  border: none;
+  border-radius: 6px;
+  color: #102943;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #d6ad69;
+}
+
+.message {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+footer {
+  text-align: center;
+  padding: 22px;
+  color: #c49b55;
+  font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  PARTNER<span>KONTOR</span>
+</header>
+
+<main>
+  <div class="login-box">
+
+    <h1>Willkommen zurück</h1>
+
+    <p class="subtitle">
+      Ihr persönlicher Zugang zum PARTNERKONTOR
+    </p>
+
+    <form id="loginForm">
+
+      <label for="email">E-Mail-Adresse</label>
+      <input
+        type="email"
+        id="email"
+        placeholder="Ihre E-Mail-Adresse"
+        required
+      >
+
+      <label for="password">Passwort</label>
+      <input
+        type="password"
+        id="password"
+        placeholder="Ihr Passwort"
+        required
+      >
+
+      <button type="submit">
+        Sicher anmelden
+      </button>
+
+    </form>
+
+    <div class="message" id="message"></div>
+
+  </div>
+</main>
+
+<footer>
+  PARTNERKONTOR – Vertrauen · Verbindung · Zusammenarbeit
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://zgcsqwnkusvbhngljqxbd.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_XK17n0IGaBcn6xVb0taypg_idMgx67I";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+document.getElementById("loginForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const message = document.getElementById("message");
+  message.textContent = "Anmeldung wird geprüft ...";
+
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    message.textContent = "Anmeldung fehlgeschlagen. Bitte Zugangsdaten prüfen.";
+    return;
+  }
+
+  message.textContent = "Anmeldung erfolgreich. Ihr Zugang wird geprüft.";
+
+  const { data: admin, error: adminError } = await supabaseClient
+    .from("app_admins")
+    .select("user_id")
+    .eq("user_id", data.user.id)
+    .maybeSingle();
+
+  if (adminError) {
+    message.textContent = "Anmeldung erfolgreich, aber die Berechtigungen konnten nicht geprüft werden.";
+    return;
+  }
+
+  if (admin) {
+    message.textContent = "Administrator-Anmeldung erfolgreich.";
+  } else {
+    message.textContent = "Angemeldet. Die Zuordnung Ihres Partner- oder Kundenzugangs wird eingerichtet.";
+  }
+});
+</script>
+
+</body>
+</html>
