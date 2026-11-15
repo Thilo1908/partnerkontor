@@ -437,18 +437,20 @@
       <h3>Kundenanfrage</h3>
       <p>Sie suchen eine Leistung oder einen passenden Ansprechpartner?</p>
 
-      <form>
+     <form action="https://formsubmit.co/thilokiessling@gmx.de" method="POST">
+       <input type="hidden" name="_subject" value="Neue Kundenanfrage – PARTNERKONTOR">
+       
         <label for="kunden-name">Ihr Name *</label>
-        <input id="kunden-name" type="text" required>
+       <input id="kunden-name" name="name" type="text" required>
 
         <label for="kunden-email">Ihre E-Mail-Adresse *</label>
-        <input id="kunden-email" type="email" required>
+        <input id="kunden-email" name="email" type="email" required>
 
         <label for="kunden-telefon">Telefon</label>
-        <input id="kunden-telefon" type="tel">
+        <input id="kunden-telefon" name="telefon" type="tel">
 
         <label for="kunden-bereich">Gesuchter Geschäftsbereich *</label>
-        <select id="kunden-bereich" required>
+       <select id="kunden-bereich" name="geschaeftsbereich" required>
           <option value="">Bitte auswählen</option>
           <option>Automotive</option>
           <option>Transport & Logistik</option>
@@ -462,7 +464,7 @@
         </select>
 
         <label for="kunden-nachricht">Worum geht es?</label>
-        <textarea id="kunden-nachricht"></textarea>
+        <textarea id="kunden-nachricht" name="nachricht"></textarea>
 
         <button type="button" disabled>Versand wird vorbereitet</button>
         <p class="form-note">
@@ -476,21 +478,23 @@
       <h3>Partner werden</h3>
       <p>Sie möchten Ihr Unternehmen in unser Netzwerk einbringen?</p>
 
-      <form>
+      <form action="https://formsubmit.co/thilokiessling@gmx.de" method="POST">
+        
+        <input type="hidden" name="_subject" value="Neue Partnerbewerbung – PARTNERKONTOR">
         <label for="partner-firma">Unternehmen *</label>
-        <input id="partner-firma" type="text" required>
+        <input id="partner-firma" name="unternehmen" type="text" required>
 
         <label for="partner-name">Ansprechpartner *</label>
-        <input id="partner-name" type="text" required>
+        <input id="partner-name" name="ansprechpartner" type="text" required>
 
         <label for="partner-email">E-Mail-Adresse *</label>
-        <input id="partner-email" type="email" required>
+        <input id="partner-email" name="email" type="email" required>
 
         <label for="partner-telefon">Telefon</label>
-        <input id="partner-telefon" type="tel">
+        <input id="partner-telefon" name="telefon" type="tel">
 
         <label for="partner-bereich">Ihr Geschäftsbereich *</label>
-        <select id="partner-bereich" required>
+        <select id="partner-bereich" name="geschaeftsbereich" required>
           <option value="">Bitte auswählen</option>
           <option>Automotive</option>
           <option>Transport & Logistik</option>
@@ -504,7 +508,7 @@
         </select>
 
         <label for="partner-nachricht">Informationen zu Ihrem Unternehmen</label>
-        <textarea id="partner-nachricht"></textarea>
+        <textarea id="partner-nachricht" name="nachricht"></textarea>
 
         <button type="button" disabled>Bewerbung wird vorbereitet</button>
         <p class="form-note">
@@ -517,23 +521,7 @@
   </div>
 </section>
 
-    <div class="contact-inner">
-      <div class="section-label">Wir sind für Sie da</div>
-      <h2>Was können wir für Sie tun?</h2>
-
-      <p>
-        Sie suchen einen passenden Ansprechpartner oder möchten mit Ihrem
-        Unternehmen Teil unseres Netzwerks werden?
-      </p>
-
-      <p>
-        Wir bereiten derzeit unseren Anfragebereich vor.
-        Dieser wird Schritt für Schritt ergänzt.
-      </p>
-
-      <a class="button" href="#start">Zurück zum Anfang</a>
-    </div>
-  </section>
+ 
 
 </main>
 
