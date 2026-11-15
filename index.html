@@ -194,6 +194,74 @@
       border-radius: 10px;
       box-shadow: 0 5px 20px rgba(16,41,67,.05);
     }
+    
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  margin-top: 35px;
+  text-align: left;
+}
+
+.form-card {
+  background: #fff;
+  padding: 28px;
+  border: 1px solid #e2e8ef;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(16,41,67,.05);
+}
+
+.form-card h3 {
+  color: #173b5b;
+  margin-top: 0;
+  font-size: 21px;
+}
+
+.form-card label {
+  display: block;
+  margin: 16px 0 7px;
+  color: #26364a;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.form-card input,
+.form-card select,
+.form-card textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccd5df;
+  border-radius: 5px;
+  font: inherit;
+  background: #fff;
+}
+
+.form-card textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.form-card button {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  border: 0;
+  border-radius: 5px;
+  background: #c49b55;
+  color: #102943;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: not-allowed;
+  opacity: .7;
+}
+
+.form-note {
+  color: #687687;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 15px;
+}
+
 
     footer {
       background: #102943;
@@ -352,7 +420,103 @@
     </div>
   </section>
 
-  <section class="contact" id="kontakt">
+  
+<section class="contact" id="kontakt">
+  <div class="intro">
+    <div class="section-label">Wir sind für Sie da</div>
+    <h2>Was können wir für Sie tun?</h2>
+    <p>
+      Ob Sie einen passenden Anbieter suchen oder unser Netzwerk
+      als Unternehmen erweitern möchten – wir freuen uns auf Ihre Anfrage.
+    </p>
+  </div>
+
+  <div class="form-grid">
+
+    <div class="form-card">
+      <h3>Kundenanfrage</h3>
+      <p>Sie suchen eine Leistung oder einen passenden Ansprechpartner?</p>
+
+      <form>
+        <label for="kunden-name">Ihr Name *</label>
+        <input id="kunden-name" type="text" required>
+
+        <label for="kunden-email">Ihre E-Mail-Adresse *</label>
+        <input id="kunden-email" type="email" required>
+
+        <label for="kunden-telefon">Telefon</label>
+        <input id="kunden-telefon" type="tel">
+
+        <label for="kunden-bereich">Gesuchter Geschäftsbereich *</label>
+        <select id="kunden-bereich" required>
+          <option value="">Bitte auswählen</option>
+          <option>Automotive</option>
+          <option>Transport & Logistik</option>
+          <option>Werbetechnik</option>
+          <option>Bodenbeschichtungen</option>
+          <option>Handel</option>
+          <option>Edelmetalle & Investment</option>
+          <option>Versicherungen</option>
+          <option>Abbruch & Rückbau</option>
+          <option>Sonstiges</option>
+        </select>
+
+        <label for="kunden-nachricht">Worum geht es?</label>
+        <textarea id="kunden-nachricht"></textarea>
+
+        <button type="button" disabled>Versand wird vorbereitet</button>
+        <p class="form-note">
+          * Pflichtfelder. Der Anfrageversand wird nach Einrichtung
+          des Datenschutzes und des E-Mail-Dienstes freigeschaltet.
+        </p>
+      </form>
+    </div>
+
+    <div class="form-card">
+      <h3>Partner werden</h3>
+      <p>Sie möchten Ihr Unternehmen in unser Netzwerk einbringen?</p>
+
+      <form>
+        <label for="partner-firma">Unternehmen *</label>
+        <input id="partner-firma" type="text" required>
+
+        <label for="partner-name">Ansprechpartner *</label>
+        <input id="partner-name" type="text" required>
+
+        <label for="partner-email">E-Mail-Adresse *</label>
+        <input id="partner-email" type="email" required>
+
+        <label for="partner-telefon">Telefon</label>
+        <input id="partner-telefon" type="tel">
+
+        <label for="partner-bereich">Ihr Geschäftsbereich *</label>
+        <select id="partner-bereich" required>
+          <option value="">Bitte auswählen</option>
+          <option>Automotive</option>
+          <option>Transport & Logistik</option>
+          <option>Werbetechnik</option>
+          <option>Bodenbeschichtungen</option>
+          <option>Handel</option>
+          <option>Edelmetalle & Investment</option>
+          <option>Versicherungen</option>
+          <option>Abbruch & Rückbau</option>
+          <option>Sonstiges</option>
+        </select>
+
+        <label for="partner-nachricht">Informationen zu Ihrem Unternehmen</label>
+        <textarea id="partner-nachricht"></textarea>
+
+        <button type="button" disabled>Bewerbung wird vorbereitet</button>
+        <p class="form-note">
+          * Pflichtfelder. Der Versand wird nach Einrichtung
+          des Datenschutzes und des E-Mail-Dienstes freigeschaltet.
+        </p>
+      </form>
+    </div>
+
+  </div>
+</section>
+
     <div class="contact-inner">
       <div class="section-label">Wir sind für Sie da</div>
       <h2>Was können wir für Sie tun?</h2>
