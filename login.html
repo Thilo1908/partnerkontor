@@ -148,6 +148,15 @@ footer {
         required
       >
 
+<label style="display:flex; align-items:center; gap:8px; margin:8px 0; font-weight:normal; cursor:pointer;">
+  <input
+    type="checkbox"
+    style="width:auto; margin:0;"
+    onchange="document.getElementById('password').type = this.checked ? 'text' : 'password';"
+  >
+  Passwort anzeigen
+</label>
+
       <button type="submit">
         Sicher anmelden
       </button>
