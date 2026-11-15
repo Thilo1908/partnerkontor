@@ -197,10 +197,10 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
     password
   });
 
-  if (error) {
-    message.textContent = "Anmeldung fehlgeschlagen. Bitte Zugangsdaten prüfen.";
-    return;
-  }
+ if (error) {
+  message.textContent = "Anmeldung fehlgeschlagen: " + error.message;
+  return;
+}
 
   message.textContent = "Anmeldung erfolgreich. Ihr Zugang wird geprüft.";
 
