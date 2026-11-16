@@ -7,9 +7,7 @@
 <title>PARTNERKONTOR – Administration</title>
 
 <style>
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -27,9 +25,7 @@ header {
   font-weight: bold;
 }
 
-header span {
-  color: #c49b55;
-}
+header span { color: #c49b55; }
 
 main {
   max-width: 1200px;
@@ -37,58 +33,9 @@ main {
   padding: 20px;
 }
 
-h1 {
-  color: #102943;
-}
+h1, h2 { color: #102943; }
 
-.subtitle {
-  color: #667085;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 22px;
-  margin-top: 35px;
-}
-
-.card {
-  background: white;
-  padding: 28px;
-  border-radius: 10px;
-  border-top: 4px solid #c49b55;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-}
-
-.card h2 {
-  font-size: 19px;
-  color: #102943;
-}
-
-.card p {
-  color: #667085;
-  line-height: 1.6;
-}
-
-.card button {
-  background: #102943;
-  color: white;
-  border: none;
-  padding: 11px 18px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.card button:hover {
-  background: #244766;
-}
-
-#status {
-  background: white;
-  padding: 18px;
-  border-radius: 8px;
-  margin-top: 25px;
-}
+.subtitle { color: #667085; }
 
 #logout {
   float: right;
@@ -101,11 +48,138 @@ h1 {
   cursor: pointer;
 }
 
+#status {
+  background: white;
+  padding: 18px;
+  border-radius: 8px;
+  margin-top: 25px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 22px;
+  margin-top: 30px;
+}
+
+.card, .panel {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  border-top: 4px solid #c49b55;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+}
+
+.card p { color: #667085; line-height: 1.6; }
+
+button {
+  cursor: pointer;
+}
+
+.primary, .secondary, .danger {
+  border: none;
+  padding: 11px 17px;
+  border-radius: 5px;
+  margin: 4px;
+}
+
+.primary {
+  background: #102943;
+  color: white;
+}
+
+.secondary {
+  background: #e8edf2;
+  color: #102943;
+}
+
+.danger {
+  background: #a83232;
+  color: white;
+}
+
+button:hover { opacity: .85; }
+
+#partnerSection { margin-top: 35px; }
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #d0d5dd;
+  border-radius: 5px;
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+label {
+  display: block;
+  margin-bottom: 14px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+}
+
+.table-wrap { overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 850px;
+}
+
+th, td {
+  padding: 13px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 13px;
+}
+
+th {
+  background: #102943;
+  color: white;
+}
+
+.badge {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 12px;
+  background: #e8edf2;
+  font-size: 12px;
+}
+
+.hidden { display: none !important; }
+
+.message {
+  padding: 12px;
+  border-radius: 6px;
+  margin: 12px 0;
+  background: #eef3f7;
+}
+
 footer {
   text-align: center;
   padding: 25px;
   color: #777;
   font-size: 12px;
+}
+
+@media(max-width:600px) {
+  main { margin: 15px auto; padding: 12px; }
+  header { padding: 18px 15px; }
 }
 </style>
 </head>
@@ -126,47 +200,180 @@ Zentrale Verwaltung der PARTNERKONTOR-Plattform
 
 <div id="status">Zugang wird geprüft ...</div>
 
-<div id="dashboard" style="display:none">
+<div id="dashboard" class="hidden">
 
 <div class="grid">
 
 <div class="card">
 <h2>Partnerverwaltung</h2>
 <p>Partner erfassen, verwalten und bearbeiten.</p>
-<button disabled>In Vorbereitung</button>
+<button class="primary" id="openPartners">
+Partnerverwaltung öffnen
+</button>
 </div>
 
 <div class="card">
 <h2>Kundenverwaltung</h2>
 <p>Kunden und ihre Anfragen zentral verwalten.</p>
-<button disabled>In Vorbereitung</button>
+<button class="secondary" disabled>In Vorbereitung</button>
 </div>
 
 <div class="card">
 <h2>Anfragenverwaltung</h2>
 <p>Eingehende Kundenanfragen kontrollieren und zuordnen.</p>
-<button disabled>In Vorbereitung</button>
+<button class="secondary" disabled>In Vorbereitung</button>
 </div>
 
 <div class="card">
 <h2>Vermittlungen</h2>
 <p>Vermittlungen zwischen Kunden und Partnern verwalten.</p>
-<button disabled>In Vorbereitung</button>
+<button class="secondary" disabled>In Vorbereitung</button>
 </div>
 
 <div class="card">
 <h2>Provisionen</h2>
-<p>Vermittlungsgebühren und Provisionen übersichtlich verwalten.</p>
-<button disabled>In Vorbereitung</button>
+<p>Vermittlungsgebühren und Provisionen verwalten.</p>
+<button class="secondary" disabled>In Vorbereitung</button>
 </div>
 
 <div class="card">
 <h2>Plattformübersicht</h2>
 <p>Zentrale Kennzahlen und Entwicklungen einsehen.</p>
-<button disabled>In Vorbereitung</button>
+<button class="secondary" disabled>In Vorbereitung</button>
 </div>
 
 </div>
+
+<section id="partnerSection" class="hidden">
+
+<div class="toolbar">
+  <h2>Partnerverwaltung</h2>
+  <button class="secondary" id="backDashboard">
+    Zurück zur Übersicht
+  </button>
+</div>
+
+<div class="panel">
+
+<div class="toolbar">
+  <h2>Partnerübersicht</h2>
+  <button class="primary" id="newPartner">
+    + Neuen Partner anlegen
+  </button>
+</div>
+
+<input
+  type="search"
+  id="searchPartner"
+  placeholder="Partner oder Firma suchen..."
+>
+
+<div id="partnerMessage" class="message">
+  Partner werden geladen ...
+</div>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Unternehmen</th>
+<th>Ansprechpartner</th>
+<th>E-Mail</th>
+<th>Telefon</th>
+<th>Status</th>
+<th>Aktionen</th>
+</tr>
+</thead>
+<tbody id="partnerTable"></tbody>
+</table>
+</div>
+
+</div>
+
+<div id="partnerFormPanel" class="panel hidden" style="margin-top:25px">
+
+<h2 id="formTitle">Neuen Partner anlegen</h2>
+
+<form id="partnerForm">
+
+<input type="hidden" id="partnerId">
+
+<div class="form-grid">
+
+<label>
+Firmenname *
+<input id="companyName" required>
+</label>
+
+<label>
+Vorname
+<input id="firstName">
+</label>
+
+<label>
+Nachname
+<input id="lastName">
+</label>
+
+<label>
+E-Mail-Adresse
+<input id="email" type="email">
+</label>
+
+<label>
+Telefon
+<input id="phone">
+</label>
+
+<label>
+Straße und Hausnummer
+<input id="street">
+</label>
+
+<label>
+Postleitzahl
+<input id="postalCode">
+</label>
+
+<label>
+Wohnort
+<input id="city">
+</label>
+
+<label>
+Website
+<input id="website">
+</label>
+
+<label>
+Status
+<select id="partnerStatus">
+<option value="pending">Offen</option>
+<option value="approved">Freigegeben</option>
+<option value="rejected">Abgelehnt</option>
+<option value="inactive">Inaktiv</option>
+</select>
+</label>
+
+</div>
+
+<label>
+Beschreibung
+<textarea id="description" rows="4"></textarea>
+</label>
+
+<button class="primary" type="submit">
+Partner speichern
+</button>
+
+<button class="secondary" type="button" id="cancelForm">
+Abbrechen
+</button>
+
+</form>
+</div>
+
+</section>
 </div>
 
 </main>
@@ -188,6 +395,25 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
+
+let partners = [];
+
+const statusNames = {
+  pending: "Offen",
+  approved: "Freigegeben",
+  rejected: "Abgelehnt",
+  inactive: "Inaktiv"
+};
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
 
 async function pruefeZugang() {
 
@@ -212,16 +438,304 @@ async function pruefeZugang() {
     return;
   }
 
-  status.textContent = "Administratorzugang erfolgreich geprüft.";
+  status.textContent =
+    "Administratorzugang erfolgreich geprüft.";
 
-  document.getElementById("dashboard").style.display = "block";
+  document.getElementById("dashboard").classList.remove("hidden");
   document.getElementById("logout").style.display = "block";
 }
 
-document.getElementById("logout").addEventListener("click", async () => {
-  await supabaseClient.auth.signOut();
-  window.location.href = "login.html";
-});
+async function ladePartner() {
+
+  const message = document.getElementById("partnerMessage");
+  const table = document.getElementById("partnerTable");
+
+  message.textContent = "Partner werden geladen ...";
+
+  const { data, error } = await supabaseClient
+    .from("partners")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    message.textContent =
+      "Fehler beim Laden: " + error.message;
+    return;
+  }
+
+  partners = data || [];
+  renderPartner();
+}
+
+function renderPartner() {
+
+  const table = document.getElementById("partnerTable");
+  const search = document.getElementById("searchPartner")
+    .value.toLowerCase();
+
+  const filtered = partners.filter(p =>
+    [
+      p.company_name,
+      p.first_name,
+      p.last_name,
+      p.email
+    ].some(value => String(value || "").toLowerCase().includes(search))
+  );
+
+  document.getElementById("partnerMessage").textContent =
+    filtered.length + " Partner gefunden.";
+
+  table.innerHTML = "";
+
+  filtered.forEach(p => {
+
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>${escapeHTML(p.company_name)}</td>
+      <td>${escapeHTML((p.first_name || "") + " " + (p.last_name || ""))}</td>
+      <td>${escapeHTML(p.email)}</td>
+      <td>${escapeHTML(p.phone)}</td>
+      <td>
+        <select data-status-id="${escapeHTML(p.id)}">
+          ${Object.entries(statusNames).map(([key, name]) =>
+            `<option value="${key}" ${p.status === key ? "selected" : ""}>${name}</option>`
+          ).join("")}
+        </select>
+      </td>
+      <td>
+        <button class="secondary" data-edit-id="${escapeHTML(p.id)}">
+          Bearbeiten
+        </button>
+        <button class="danger" data-delete-id="${escapeHTML(p.id)}">
+          Löschen
+        </button>
+      </td>
+    `;
+
+    table.appendChild(row);
+  });
+}
+
+function zeigeForm(partner = null) {
+
+  document.getElementById("partnerForm").reset();
+
+  document.getElementById("partnerId").value =
+    partner?.id || "";
+
+  document.getElementById("formTitle").textContent =
+    partner ? "Partner bearbeiten" : "Neuen Partner anlegen";
+
+  document.getElementById("companyName").value =
+    partner?.company_name || "";
+
+  document.getElementById("firstName").value =
+    partner?.first_name || "";
+
+  document.getElementById("lastName").value =
+    partner?.last_name || "";
+
+  document.getElementById("email").value =
+    partner?.email || "";
+
+  document.getElementById("phone").value =
+    partner?.phone || "";
+
+  document.getElementById("street").value =
+    partner?.street || "";
+
+  document.getElementById("postalCode").value =
+    partner?.postal_code || "";
+
+  document.getElementById("city").value =
+    partner?.city || "";
+
+  document.getElementById("website").value =
+    partner?.website || "";
+
+  document.getElementById("description").value =
+    partner?.description || "";
+
+  document.getElementById("partnerStatus").value =
+    partner?.status || "pending";
+
+  document.getElementById("partnerFormPanel")
+    .classList.remove("hidden");
+
+  document.getElementById("partnerFormPanel")
+    .scrollIntoView({ behavior: "smooth" });
+}
+
+async function speicherePartner(event) {
+
+  event.preventDefault();
+
+  const id = document.getElementById("partnerId").value;
+
+  const partnerData = {
+    company_name: document.getElementById("companyName").value.trim(),
+    first_name: document.getElementById("firstName").value.trim(),
+    last_name: document.getElementById("lastName").value.trim(),
+    email: document.getElementById("email").value.trim(),
+    phone: document.getElementById("phone").value.trim(),
+    street: document.getElementById("street").value.trim(),
+    postal_code: document.getElementById("postalCode").value.trim(),
+    city: document.getElementById("city").value.trim(),
+    website: document.getElementById("website").value.trim(),
+    description: document.getElementById("description").value.trim(),
+    status: document.getElementById("partnerStatus").value
+  };
+
+  if (!partnerData.company_name) {
+    alert("Bitte einen Firmennamen eingeben.");
+    return;
+  }
+
+  let result;
+
+  if (id) {
+
+    result = await supabaseClient
+      .from("partners")
+      .update({
+        ...partnerData,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", id);
+
+  } else {
+
+    result = await supabaseClient
+      .from("partners")
+      .insert(partnerData);
+  }
+
+  if (result.error) {
+    alert("Fehler beim Speichern: " + result.error.message);
+    return;
+  }
+
+  alert(id ? "Partner erfolgreich aktualisiert." :
+               "Partner erfolgreich angelegt.");
+
+  document.getElementById("partnerFormPanel")
+    .classList.add("hidden");
+
+  await ladePartner();
+}
+
+async function aendereStatus(id, neuerStatus) {
+
+  const { error } = await supabaseClient
+    .from("partners")
+    .update({
+      status: neuerStatus,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", id);
+
+  if (error) {
+    alert("Status konnte nicht geändert werden: " + error.message);
+    await ladePartner();
+    return;
+  }
+
+  await ladePartner();
+}
+
+async function loeschePartner(id) {
+
+  const bestaetigt = confirm(
+    "Möchtest du diesen Partner wirklich löschen?"
+  );
+
+  if (!bestaetigt) return;
+
+  const { error } = await supabaseClient
+    .from("partners")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert("Fehler beim Löschen: " + error.message);
+    return;
+  }
+
+  alert("Partner erfolgreich gelöscht.");
+
+  await ladePartner();
+}
+
+document.getElementById("openPartners")
+  .addEventListener("click", async () => {
+
+    document.getElementById("partnerSection")
+      .classList.remove("hidden");
+
+    document.getElementById("partnerSection")
+      .scrollIntoView({ behavior: "smooth" });
+
+    await ladePartner();
+  });
+
+document.getElementById("backDashboard")
+  .addEventListener("click", () => {
+
+    document.getElementById("partnerSection")
+      .classList.add("hidden");
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+document.getElementById("newPartner")
+  .addEventListener("click", () => zeigeForm());
+
+document.getElementById("cancelForm")
+  .addEventListener("click", () => {
+
+    document.getElementById("partnerFormPanel")
+      .classList.add("hidden");
+  });
+
+document.getElementById("partnerForm")
+  .addEventListener("submit", speicherePartner);
+
+document.getElementById("searchPartner")
+  .addEventListener("input", renderPartner);
+
+document.getElementById("partnerTable")
+  .addEventListener("click", event => {
+
+    const editId = event.target.dataset.editId;
+    const deleteId = event.target.dataset.deleteId;
+
+    if (editId) {
+      const partner = partners.find(p => p.id === editId);
+      if (partner) zeigeForm(partner);
+    }
+
+    if (deleteId) {
+      loeschePartner(deleteId);
+    }
+  });
+
+document.getElementById("partnerTable")
+  .addEventListener("change", event => {
+
+    const id = event.target.dataset.statusId;
+
+    if (id) {
+      aendereStatus(id, event.target.value);
+    }
+  });
+
+document.getElementById("logout")
+  .addEventListener("click", async () => {
+
+    await supabaseClient.auth.signOut();
+    window.location.href = "login.html";
+  });
 
 pruefeZugang();
 </script>
