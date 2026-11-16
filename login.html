@@ -204,11 +204,9 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 
   message.textContent = "Anmeldung erfolgreich. Ihr Zugang wird geprüft.";
 
-  const { data: admin, error: adminError } = await supabaseClient
-    .from("app_admins")
-    .select("user_id")
-    .eq("user_id", data.user.id)
-    .maybeSingle();
+
+const { data: admin, error: adminError } = await supabaseClient.rpc("is_app_admin");
+
 
   if (adminError) {
     message.textContent = "Anmeldung erfolgreich, aber die Berechtigungen konnten nicht geprüft werden.";
