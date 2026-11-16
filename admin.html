@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -34,6 +33,7 @@ main {
 }
 
 h1, h2 { color: #102943; }
+
 .subtitle { color: #667085; }
 
 #logout {
@@ -70,6 +70,7 @@ h1, h2 { color: #102943; }
 }
 
 .card p { color: #667085; line-height: 1.6; }
+
 button { cursor: pointer; }
 
 .primary, .secondary, .danger {
@@ -79,11 +80,23 @@ button { cursor: pointer; }
   margin: 4px;
 }
 
-.primary { background: #102943; color: white; }
-.secondary { background: #e8edf2; color: #102943; }
-.danger { background: #a83232; color: white; }
+.primary {
+  background: #102943;
+  color: white;
+}
+
+.secondary {
+  background: #e8edf2;
+  color: #102943;
+}
+
+.danger {
+  background: #a83232;
+  color: white;
+}
 
 button:hover { opacity: .85; }
+
 #partnerSection { margin-top: 35px; }
 
 .toolbar {
@@ -154,51 +167,27 @@ th {
   background: #eef3f7;
 }
 
-.partner-number {
-  font-weight: bold;
-  color: #102943;
-  white-space: nowrap;
-}
-
-.business-area-box {
+.area-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+  padding: 12px;
   border: 1px solid #d0d5dd;
-  border-radius: 7px;
-  padding: 15px;
-  margin: 8px 0 20px;
+  border-radius: 5px;
   background: #fafbfc;
 }
 
-.business-area-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.business-area-option {
+.area-option {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 10px;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 5px;
+  gap: 8px;
   font-weight: normal;
   margin: 0;
-  cursor: pointer;
 }
 
-.business-area-option input {
+.area-option input {
   width: auto;
   margin: 0;
-}
-
-.business-area-option span { line-height: 1.4; }
-
-.readonly-field {
-  background: #eef3f7;
-  color: #102943;
-  font-weight: bold;
 }
 
 footer {
@@ -330,14 +319,12 @@ Partnerverwaltung öffnen
 
 <input type="hidden" id="partnerId">
 
+<div class="form-grid">
+
 <label>
 Partnernummer
-<input id="partnerNumber" class="readonly-field"
-       placeholder="Wird automatisch vergeben"
-       readonly>
+<input id="partnerNumber" readonly placeholder="Wird automatisch vergeben">
 </label>
-
-<div class="form-grid">
 
 <label>
 Firmenname *
@@ -396,16 +383,12 @@ Status
 
 </div>
 
-<label>Geschäftsbereiche auswählen</label>
+<label>
+Geschäftsbereiche – Mehrfachauswahl möglich
+</label>
 
-<div class="business-area-box">
-  <p>
-    Wähle alle Geschäftsbereiche aus, in denen der Partner tätig ist.
-    Mehrere Auswahlmöglichkeiten sind möglich.
-  </p>
-  <div id="businessAreaList" class="business-area-list">
-    Geschäftsbereiche werden geladen ...
-  </div>
+<div id="businessAreas" class="area-list">
+  Geschäftsbereiche werden geladen ...
 </div>
 
 <label>
@@ -413,7 +396,7 @@ Beschreibung
 <textarea id="description" rows="4"></textarea>
 </label>
 
-<button class="primary" id="savePartnerButton" type="submit">
+<button class="primary" type="submit" id="savePartnerButton">
 Partner speichern
 </button>
 
@@ -432,7 +415,6 @@ Abbrechen
 <footer>
 PARTNERKONTOR – Administration
 </footer>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -468,7 +450,6 @@ function escapeHTML(value) {
 }
 
 async function pruefeZugang() {
-
   const status = document.getElementById("status");
 
   const { data: sessionData, error: sessionError } =
@@ -485,7 +466,6 @@ async function pruefeZugang() {
   if (adminError || !admin) {
     status.textContent =
       "Zugriff verweigert. Keine Administratorberechtigung.";
-
     await supabaseClient.auth.signOut();
     return;
   }
@@ -498,60 +478,45 @@ async function pruefeZugang() {
 }
 
 async function ladeGeschaeftsbereiche() {
-
-  const list = document.getElementById("businessAreaList");
-
-  list.textContent = "Geschäftsbereiche werden geladen ...";
+  const container = document.getElementById("businessAreas");
 
   const { data, error } = await supabaseClient
     .from("business_areas")
-    .select("id, code, name, description, sort_order, active")
-    .eq("active", true)
-    .order("sort_order", { ascending: true });
+    .select("*")
+    .order("name");
 
   if (error) {
-    list.textContent =
+    container.textContent =
       "Fehler beim Laden der Geschäftsbereiche: " + error.message;
-    return false;
+    return;
   }
 
   businessAreas = data || [];
-
-  if (businessAreas.length === 0) {
-    list.textContent = "Keine aktiven Geschäftsbereiche vorhanden.";
-    return true;
-  }
-
   renderGeschaeftsbereiche();
-
-  return true;
 }
 
 function renderGeschaeftsbereiche(selectedIds = []) {
+  const container = document.getElementById("businessAreas");
 
-  const list = document.getElementById("businessAreaList");
+  if (!businessAreas.length) {
+    container.textContent = "Keine Geschäftsbereiche vorhanden.";
+    return;
+  }
 
-  list.innerHTML = businessAreas.map(area => {
-
-    const checked = selectedIds.includes(area.id) ? "checked" : "";
-
-    return `
-      <label class="business-area-option">
-        <input
-          type="checkbox"
-          name="businessArea"
-          value="${escapeHTML(area.id)}"
-          ${checked}
-        >
-        <span>${escapeHTML(area.name)}</span>
-      </label>
-    `;
-
-  }).join("");
+  container.innerHTML = businessAreas.map(area => `
+    <label class="area-option">
+      <input
+        type="checkbox"
+        name="businessArea"
+        value="${escapeHTML(area.id)}"
+        ${selectedIds.includes(area.id) ? "checked" : ""}
+      >
+      ${escapeHTML(area.name)}
+    </label>
+  `).join("");
 }
 
 function ausgewaehlteGeschaeftsbereiche() {
-
   return Array.from(
     document.querySelectorAll(
       'input[name="businessArea"]:checked'
@@ -559,27 +524,7 @@ function ausgewaehlteGeschaeftsbereiche() {
   ).map(input => input.value);
 }
 
-async function ladePartnerGeschaeftsbereiche(partnerId) {
-
-  const { data, error } = await supabaseClient
-    .from("partner_business_areas")
-    .select("business_area_id")
-    .eq("partner_id", partnerId);
-
-  if (error) {
-    alert(
-      "Die zugeordneten Geschäftsbereiche konnten nicht geladen werden: " +
-      error.message
-    );
-    return null;
-  }
-
-  return (data || []).map(item => item.business_area_id);
-}
-</script>
-
 async function ladePartner() {
-
   const message = document.getElementById("partnerMessage");
   const table = document.getElementById("partnerTable");
 
@@ -600,7 +545,6 @@ async function ladePartner() {
 }
 
 function renderPartner() {
-
   const table = document.getElementById("partnerTable");
   const search = document.getElementById("searchPartner")
     .value.toLowerCase();
@@ -623,11 +567,10 @@ function renderPartner() {
   table.innerHTML = "";
 
   filtered.forEach(p => {
-
     const row = document.createElement("tr");
 
     row.innerHTML = `
-      <td class="partner-number">${escapeHTML(p.partner_number)}</td>
+      <td>${escapeHTML(p.partner_number)}</td>
       <td>${escapeHTML(p.company_name)}</td>
       <td>${escapeHTML((p.first_name || "") + " " + (p.last_name || ""))}</td>
       <td>${escapeHTML(p.email)}</td>
@@ -654,7 +597,6 @@ function renderPartner() {
 }
 
 async function zeigeForm(partner = null) {
-
   document.getElementById("partnerForm").reset();
 
   document.getElementById("partnerId").value =
@@ -699,18 +641,20 @@ async function zeigeForm(partner = null) {
   document.getElementById("partnerStatus").value =
     partner?.status || "pending";
 
-  const loaded = await ladeGeschaeftsbereiche();
-
-  if (!loaded) return;
-
   let selectedIds = [];
 
   if (partner) {
-    const result = await ladePartnerGeschaeftsbereiche(partner.id);
+    const { data, error } = await supabaseClient
+      .from("partner_business_areas")
+      .select("business_area_id")
+      .eq("partner_id", partner.id);
 
-    if (result === null) return;
+    if (error) {
+      alert("Geschäftsbereiche konnten nicht geladen werden: " + error.message);
+      return;
+    }
 
-    selectedIds = result;
+    selectedIds = (data || []).map(item => item.business_area_id);
   }
 
   renderGeschaeftsbereiche(selectedIds);
@@ -721,9 +665,7 @@ async function zeigeForm(partner = null) {
   document.getElementById("partnerFormPanel")
     .scrollIntoView({ behavior: "smooth" });
 }
-
-async function speicherePartner(event) {
-
+  async function speicherePartner(event) {
   event.preventDefault();
 
   const button = document.getElementById("savePartnerButton");
@@ -731,7 +673,6 @@ async function speicherePartner(event) {
   button.textContent = "Wird gespeichert ...";
 
   try {
-
     const id = document.getElementById("partnerId").value;
 
     const partnerData = {
@@ -754,12 +695,9 @@ async function speicherePartner(event) {
       return;
     }
 
-    const selectedAreas = ausgewaehlteGeschaeftsbereiche();
-
     let partnerId = id;
 
     if (id) {
-
       const { error } = await supabaseClient
         .from("partners")
         .update(partnerData)
@@ -768,7 +706,6 @@ async function speicherePartner(event) {
       if (error) throw error;
 
     } else {
-
       const { data, error } = await supabaseClient
         .from("partners")
         .insert(partnerData)
@@ -776,7 +713,6 @@ async function speicherePartner(event) {
         .single();
 
       if (error) throw error;
-
       partnerId = data.id;
     }
 
@@ -787,8 +723,9 @@ async function speicherePartner(event) {
 
     if (deleteError) throw deleteError;
 
-    if (selectedAreas.length > 0) {
+    const selectedAreas = ausgewaehlteGeschaeftsbereiche();
 
+    if (selectedAreas.length > 0) {
       const assignments = selectedAreas.map(areaId => ({
         partner_id: partnerId,
         business_area_id: areaId
@@ -812,18 +749,14 @@ async function speicherePartner(event) {
     await ladePartner();
 
   } catch (error) {
-
     alert("Fehler beim Speichern: " + error.message);
-
   } finally {
-
     button.disabled = false;
     button.textContent = "Partner speichern";
   }
 }
 
 async function aendereStatus(id, neuerStatus) {
-
   const { error } = await supabaseClient
     .from("partners")
     .update({
@@ -842,12 +775,21 @@ async function aendereStatus(id, neuerStatus) {
 }
 
 async function loeschePartner(id) {
-
   const bestaetigt = confirm(
     "Möchtest du diesen Partner wirklich löschen?"
   );
 
   if (!bestaetigt) return;
+
+  const { error: deleteAreasError } = await supabaseClient
+    .from("partner_business_areas")
+    .delete()
+    .eq("partner_id", id);
+
+  if (deleteAreasError) {
+    alert("Geschäftsbereiche konnten nicht entfernt werden: " + deleteAreasError.message);
+    return;
+  }
 
   const { error } = await supabaseClient
     .from("partners")
@@ -860,13 +802,11 @@ async function loeschePartner(id) {
   }
 
   alert("Partner erfolgreich gelöscht.");
-
   await ladePartner();
 }
 
 document.getElementById("openPartners")
   .addEventListener("click", async () => {
-
     document.getElementById("partnerSection")
       .classList.remove("hidden");
 
@@ -874,11 +814,11 @@ document.getElementById("openPartners")
       .scrollIntoView({ behavior: "smooth" });
 
     await ladePartner();
+    await ladeGeschaeftsbereiche();
   });
 
 document.getElementById("backDashboard")
   .addEventListener("click", () => {
-
     document.getElementById("partnerSection")
       .classList.add("hidden");
 
@@ -890,7 +830,6 @@ document.getElementById("newPartner")
 
 document.getElementById("cancelForm")
   .addEventListener("click", () => {
-
     document.getElementById("partnerFormPanel")
       .classList.add("hidden");
   });
@@ -903,7 +842,6 @@ document.getElementById("searchPartner")
 
 document.getElementById("partnerTable")
   .addEventListener("click", event => {
-
     const editId = event.target.dataset.editId;
     const deleteId = event.target.dataset.deleteId;
 
@@ -919,7 +857,6 @@ document.getElementById("partnerTable")
 
 document.getElementById("partnerTable")
   .addEventListener("change", event => {
-
     const id = event.target.dataset.statusId;
 
     if (id) {
@@ -929,7 +866,6 @@ document.getElementById("partnerTable")
 
 document.getElementById("logout")
   .addEventListener("click", async () => {
-
     await supabaseClient.auth.signOut();
     window.location.href = "login.html";
   });
