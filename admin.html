@@ -1,0 +1,230 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PARTNERKONTOR – Administration</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f2f4f7;
+  color: #26364a;
+}
+
+header {
+  background: #102943;
+  color: white;
+  padding: 22px 6%;
+  border-bottom: 3px solid #c49b55;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+header span {
+  color: #c49b55;
+}
+
+main {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+h1 {
+  color: #102943;
+}
+
+.subtitle {
+  color: #667085;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 22px;
+  margin-top: 35px;
+}
+
+.card {
+  background: white;
+  padding: 28px;
+  border-radius: 10px;
+  border-top: 4px solid #c49b55;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+}
+
+.card h2 {
+  font-size: 19px;
+  color: #102943;
+}
+
+.card p {
+  color: #667085;
+  line-height: 1.6;
+}
+
+.card button {
+  background: #102943;
+  color: white;
+  border: none;
+  padding: 11px 18px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.card button:hover {
+  background: #244766;
+}
+
+#status {
+  background: white;
+  padding: 18px;
+  border-radius: 8px;
+  margin-top: 25px;
+}
+
+#logout {
+  float: right;
+  background: #c49b55;
+  color: #102943;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+footer {
+  text-align: center;
+  padding: 25px;
+  color: #777;
+  font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  PARTNER<span>KONTOR</span>
+  <button id="logout" style="display:none">Abmelden</button>
+</header>
+
+<main>
+
+<h1>Administratorbereich</h1>
+<p class="subtitle">
+Zentrale Verwaltung der PARTNERKONTOR-Plattform
+</p>
+
+<div id="status">Zugang wird geprüft ...</div>
+
+<div id="dashboard" style="display:none">
+
+<div class="grid">
+
+<div class="card">
+<h2>Partnerverwaltung</h2>
+<p>Partner erfassen, verwalten und bearbeiten.</p>
+<button disabled>In Vorbereitung</button>
+</div>
+
+<div class="card">
+<h2>Kundenverwaltung</h2>
+<p>Kunden und ihre Anfragen zentral verwalten.</p>
+<button disabled>In Vorbereitung</button>
+</div>
+
+<div class="card">
+<h2>Anfragenverwaltung</h2>
+<p>Eingehende Kundenanfragen kontrollieren und zuordnen.</p>
+<button disabled>In Vorbereitung</button>
+</div>
+
+<div class="card">
+<h2>Vermittlungen</h2>
+<p>Vermittlungen zwischen Kunden und Partnern verwalten.</p>
+<button disabled>In Vorbereitung</button>
+</div>
+
+<div class="card">
+<h2>Provisionen</h2>
+<p>Vermittlungsgebühren und Provisionen übersichtlich verwalten.</p>
+<button disabled>In Vorbereitung</button>
+</div>
+
+<div class="card">
+<h2>Plattformübersicht</h2>
+<p>Zentrale Kennzahlen und Entwicklungen einsehen.</p>
+<button disabled>In Vorbereitung</button>
+</div>
+
+</div>
+</div>
+
+</main>
+
+<footer>
+PARTNERKONTOR – Administration
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL =
+"https://gzcsqwnkusvbngljqxbd.supabase.co";
+
+const SUPABASE_ANON_KEY =
+"sb_publishable_XK17n0IGaBcn6xVb0taypg_idMgx67I";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+async function pruefeZugang() {
+
+  const status = document.getElementById("status");
+
+  const { data: sessionData, error: sessionError } =
+    await supabaseClient.auth.getSession();
+
+  if (sessionError || !sessionData.session) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const { data: admin, error: adminError } =
+    await supabaseClient.rpc("is_app_admin");
+
+  if (adminError || !admin) {
+    status.textContent =
+      "Zugriff verweigert. Keine Administratorberechtigung.";
+
+    await supabaseClient.auth.signOut();
+    return;
+  }
+
+  status.textContent = "Administratorzugang erfolgreich geprüft.";
+
+  document.getElementById("dashboard").style.display = "block";
+  document.getElementById("logout").style.display = "block";
+}
+
+document.getElementById("logout").addEventListener("click", async () => {
+  await supabaseClient.auth.signOut();
+  window.location.href = "login.html";
+});
+
+pruefeZugang();
+</script>
+
+</body>
+</html>
