@@ -82,6 +82,39 @@ input:focus {
   outline: 2px solid #c49b55;
 }
 
+.password-field {
+  display: flex;
+  align-items: center;
+  border: 1px solid #d5dce4;
+  border-radius: 6px;
+  margin-top: 0;
+}
+
+.password-field input {
+  border: none;
+  flex: 1;
+  min-width: 0;
+}
+
+.password-field input:focus {
+  outline: none;
+}
+
+.password-toggle {
+  width: auto;
+  margin: 0;
+  padding: 10px 13px;
+  background: none;
+  color: #102943;
+  font-size: 22px;
+  border: none;
+  cursor: pointer;
+}
+
+.password-toggle:hover {
+  background: #f0f2f5;
+}
+
 button {
   width: 100%;
   padding: 14px;
@@ -130,32 +163,43 @@ footer {
       Ihr persönlicher Zugang zum PARTNERKONTOR
     </p>
 
-    <form id="loginForm">
+    <form id="loginForm" autocomplete="on">
 
       <label for="email">E-Mail-Adresse</label>
+
       <input
         type="email"
         id="email"
+        name="email"
         placeholder="Ihre E-Mail-Adresse"
+        autocomplete="username"
         required
       >
 
       <label for="password">Passwort</label>
-      <input
-        type="password"
-        id="password"
-        placeholder="Ihr Passwort"
-        required
-      >
 
-<label style="display:flex; align-items:center; gap:8px; margin:8px 0; font-weight:normal; cursor:pointer;">
-  <input
-    type="checkbox"
-    style="width:auto; margin:0;"
-    onchange="document.getElementById('password').type = this.checked ? 'text' : 'password';"
-  >
-  Passwort anzeigen
-</label>
+      <div class="password-field">
+
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Ihr Passwort"
+          autocomplete="current-password"
+          required
+        >
+
+        <button
+          type="button"
+          id="togglePassword"
+          class="password-toggle"
+          aria-label="Passwort anzeigen"
+          aria-pressed="false"
+        >
+          &#128065;
+        </button>
+
+      </div>
 
       <button type="submit">
         Sicher anmelden
@@ -175,7 +219,9 @@ footer {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
 const SUPABASE_URL = "https://gzcsqwnkusvbngljqxbd.supabase.co";
+
 const SUPABASE_ANON_KEY = "sb_publishable_XK17n0IGaBcn6xVb0taypg_idMgx67I";
 
 const supabaseClient = window.supabase.createClient(
@@ -183,30 +229,82 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_ANON_KEY
 );
 
+
+// PASSWORTANZEIGE
+
+const passwordInput = document.getElementById("password");
+
+const togglePassword = document.getElementById("togglePassword");
+
+function showPassword() {
+  passwordInput.type = "text";
+  togglePassword.setAttribute("aria-pressed", "true");
+  togglePassword.setAttribute("aria-label", "Passwort verbergen");
+}
+
+function hidePassword() {
+  passwordInput.type = "password";
+  togglePassword.setAttribute("aria-pressed", "false");
+  togglePassword.setAttribute("aria-label", "Passwort anzeigen");
+}
+
+togglePassword.addEventListener("pointerdown", function(event) {
+  event.preventDefault();
+  showPassword();
+});
+
+document.addEventListener("pointerup", hidePassword);
+
+document.addEventListener("pointercancel", hidePassword);
+
+window.addEventListener("blur", hidePassword);
+
+
+// TASTATURBEDIENUNG
+
+togglePassword.addEventListener("keydown", function(event) {
+  if (event.key === " " || event.key === "Enter") {
+    event.preventDefault();
+    showPassword();
+  }
+});
+
+togglePassword.addEventListener("keyup", function(event) {
+  if (event.key === " " || event.key === "Enter") {
+    hidePassword();
+  }
+});
+
+
+// ANMELDUNG
+
 document.getElementById("loginForm").addEventListener("submit", async function(e) {
+
   e.preventDefault();
 
   const message = document.getElementById("message");
+
   message.textContent = "Anmeldung wird geprüft ...";
 
   const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+
+  const password = passwordInput.value;
 
   const { data, error } = await supabaseClient.auth.signInWithPassword({
     email,
     password
   });
 
- if (error) {
-  message.textContent = "Anmeldung fehlgeschlagen: " + error.message;
-  return;
-}
+  hidePassword();
+
+  if (error) {
+    message.textContent = "Anmeldung fehlgeschlagen: " + error.message;
+    return;
+  }
 
   message.textContent = "Anmeldung erfolgreich. Ihr Zugang wird geprüft.";
 
-
-const { data: admin, error: adminError } = await supabaseClient.rpc("is_app_admin");
-
+  const { data: admin, error: adminError } = await supabaseClient.rpc("is_app_admin");
 
   if (adminError) {
     message.textContent = "Anmeldung erfolgreich, aber die Berechtigungen konnten nicht geprüft werden.";
@@ -218,8 +316,11 @@ const { data: admin, error: adminError } = await supabaseClient.rpc("is_app_admi
   } else {
     message.textContent = "Angemeldet. Die Zuordnung Ihres Partner- oder Kundenzugangs wird eingerichtet.";
   }
+
 });
+
 </script>
 
 </body>
 </html>
+
