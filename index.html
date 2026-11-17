@@ -747,11 +747,17 @@ inquiryForm.addEventListener("submit", async function(event) {
   };
 
   try {
-    const { error } = await supabaseClient
-      .from("inquiries")
-      .insert([anfrage]);
+    const { data, error } = await supabaseClient.functions.invoke(
+  "process-inquiry",
+  { body: anfrage }
+);
 
-    if (error) throw error;
+if (error) throw error;
+
+if (!data || !data.success) {
+  throw new Error(data?.error || "Die Anfrage konnte nicht gespeichert werden.");
+}
+
 
     inquiryMessage.textContent =
       "Vielen Dank! Ihre Anfrage wurde erfolgreich übermittelt.";
