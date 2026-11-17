@@ -410,6 +410,47 @@ Abbrechen
 </div>
 
 </section>
+  
+<section id="inquirySection" class="hidden">
+
+  <div class="toolbar">
+    <h2>Anfragenverwaltung</h2>
+    <button class="secondary" id="backDashboardFromInquiries">
+      Zurück zur Übersicht
+    </button>
+  </div>
+
+  <div class="panel">
+    <div class="toolbar">
+      <h2>Eingegangene Kundenanfragen</h2>
+      <button class="secondary" id="reloadInquiries">
+        Anfragen aktualisieren
+      </button>
+    </div>
+
+    <div id="inquiryMessage" class="message">
+      Kundenanfragen werden geladen ...
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Datum</th>
+            <th>Kunde</th>
+            <th>Geschäftsbereich</th>
+            <th>Betreff</th>
+            <th>Beschreibung</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="inquiryTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+
 </div>
 
 </main>
@@ -870,6 +911,109 @@ document.getElementById("logout")
   .addEventListener("click", async () => {
     await supabaseClient.auth.signOut();
     window.location.href = "login.html";
+  });
+
+const inquiryStatusNames = {
+  new: "Neu",
+  reviewing: "In Prüfung",
+  assigned: "Zugeordnet",
+  completed: "Abgeschlossen",
+  cancelled: "Storniert"
+};
+
+async function ladeAnfragen() {
+  const message = document.getElementById("inquiryMessage");
+  const table = document.getElementById("inquiryTable");
+
+  message.textContent = "Kundenanfragen werden geladen ...";
+  table.innerHTML = "";
+
+  const { data, error } = await supabaseClient
+    .from("inquiries")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    message.textContent =
+      "Fehler beim Laden der Anfragen: " + error.message;
+    return;
+  }
+
+  const anfragen = data || [];
+
+  if (anfragen.length === 0) {
+    message.textContent = "Es sind noch keine Kundenanfragen vorhanden.";
+    return;
+  }
+
+  const bereichNamen = {};
+
+  businessAreas.forEach(area => {
+    bereichNamen[area.id] = area.name;
+  });
+
+  table.innerHTML = anfragen.map(anfrage => {
+    const datum = anfrage.created_at
+      ? new Date(anfrage.created_at).toLocaleString("de-DE")
+      : "–";
+
+    const status =
+      inquiryStatusNames[anfrage.status] || anfrage.status || "–";
+
+    return `
+      <tr>
+        <td>${escapeHTML(datum)}</td>
+        <td>
+          ${escapeHTML(anfrage.customer_name)}
+          <br>
+          ${escapeHTML(anfrage.email)}
+          <br>
+          ${escapeHTML(anfrage.phone)}
+        </td>
+        <td>${escapeHTML(bereichNamen[anfrage.business_area_id] || "–")}</td>
+        <td>${escapeHTML(anfrage.subject)}</td>
+        <td>${escapeHTML(anfrage.description)}</td>
+        <td><span class="badge">${escapeHTML(status)}</span></td>
+      </tr>
+    `;
+  }).join("");
+
+  message.textContent =
+    anfragen.length + " Kundenanfrage(n) gefunden.";
+}
+
+document.getElementById("openInquiries")
+  .addEventListener("click", async () => {
+    document.getElementById("partnerSection")
+      .classList.add("hidden");
+
+    document.getElementById("inquirySection")
+      .classList.remove("hidden");
+
+    document.getElementById("inquirySection")
+      .scrollIntoView({ behavior: "smooth" });
+
+    const { data, error } = await supabaseClient
+      .from("business_areas")
+      .select("*")
+      .order("name");
+
+    if (!error) {
+      businessAreas = data || [];
+    }
+
+    await ladeAnfragen();
+  });
+
+document.getElementById("reloadInquiries")
+  .addEventListener("click", ladeAnfragen);
+
+document.getElementById("backDashboardFromInquiries")
+  .addEventListener("click", () => {
+    document.getElementById("inquirySection")
+      .classList.add("hidden");
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
 pruefeZugang();
