@@ -682,5 +682,85 @@
   <p><a href="impressum.html" style="color: white;">Impressum</a></p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://gzcsqwnkusvbngljqxbd.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_XK17n0IGaBcn6xVb0taypg_idMgx67I";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+const inquiryForm = document.getElementById("customerInquiryForm");
+const inquiryMessage = document.getElementById("inquiryFormMessage");
+const inquiryArea = document.getElementById("inquiryBusinessArea");
+
+// Geschäftsbereiche aus Supabase laden
+async function ladeAnfrageGeschaeftsbereiche() {
+  const { data, error } = await supabaseClient
+    .from("business_areas")
+    .select("id, name")
+    .order("name");
+
+  if (error) {
+    inquiryArea.innerHTML =
+      '<option value="">Geschäftsbereiche konnten nicht geladen werden</option>';
+    return;
+  }
+
+  inquiryArea.innerHTML =
+    '<option value="">Bitte auswählen</option>' +
+    (data || []).map(area =>
+      `<option value="${area.id}">${area.name}</option>`
+    ).join("");
+}
+
+// Kundenanfrage speichern
+inquiryForm.addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  const submitButton = inquiryForm.querySelector(
+    'button[type="submit"]'
+  );
+
+  submitButton.disabled = true;
+  submitButton.textContent = "Anfrage wird gesendet ...";
+  inquiryMessage.textContent = "";
+
+  const anfrage = {
+    customer_name: document.getElementById("inquiryName").value.trim(),
+    email: document.getElementById("inquiryEmail").value.trim(),
+    phone: document.getElementById("inquiryPhone").value.trim(),
+    business_area_id: inquiryArea.value,
+    subject: document.getElementById("inquirySubject").value.trim(),
+    description: document.getElementById("inquiryDescription").value.trim(),
+    status: "new"
+  };
+
+  try {
+    const { error } = await supabaseClient
+      .from("inquiries")
+      .insert([anfrage]);
+
+    if (error) throw error;
+
+    inquiryMessage.textContent =
+      "Vielen Dank! Ihre Anfrage wurde erfolgreich übermittelt.";
+
+    inquiryForm.reset();
+
+  } catch (error) {
+    inquiryMessage.textContent =
+      "Die Anfrage konnte nicht gespeichert werden: " + error.message;
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = "Anfrage absenden";
+  }
+});
+
+ladeAnfrageGeschaeftsbereiche();
+</script>
 </body>
 </html>
