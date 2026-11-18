@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PARTNERKONTOR – Partnerbereich</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f1f3f7;
+      color: #26364a;
+    }
+    header {
+      background: #102943;
+      color: white;
+      padding: 22px 7%;
+      border-bottom: 3px solid #c49b55;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    main {
+      max-width: 900px;
+      margin: 60px auto;
+      padding: 30px;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 3px 15px #00000010;
+    }
+    button {
+      background: #102943;
+      color: white;
+      border: 0;
+      padding: 12px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #status { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <header>PARTNERKONTOR</header>
+
+  <main>
+    <div class="card">
+      <h1>Partnerbereich</h1>
+      <p id="partnerInfo">Partnerzugang wird geprüft ...</p>
+      <button id="logoutButton" type="button">Abmelden</button>
+      <p id="status"></p>
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://gzcsqwnkusvbngljqxbd.supabase.co";
+
+    // Hier muss derselbe öffentliche Supabase-Schlüssel wie in login.html stehen.
+    const SUPABASE_ANON_KEY = "sb_publishable_XK17n0IGaBcn6xVb0taypg_idMgx67I";
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+
+    async function pruefePartner() {
+      const info = document.getElementById("partnerInfo");
+
+      const { data: sessionData, error: sessionError } =
+        await supabaseClient.auth.getSession();
+
+      if (sessionError || !sessionData.session) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const user = sessionData.session.user;
+
+      const { data: partner, error } = await supabaseClient
+        .from("partners")
+        .select("partner_number, first_name, last_name, status")
+        .eq("auth_user_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        info.textContent = "Partnerdaten konnten nicht geladen werden: " + error.message;
+        return;
+      }
+
+      if (!partner || partner.status !== "approved") {
+        info.textContent = "Kein freigegebener Partnerzugang gefunden.";
+        return;
+      }
+
+      info.textContent =
+        "Willkommen " + partner.first_name + " " + partner.last_name +
+        " (" + partner.partner_number + ").";
+    }
+
+    document.getElementById("logoutButton").addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+      window.location.href = "login.html";
+    });
+
+    pruefePartner();
+  </script>
+</body>
+</html>
