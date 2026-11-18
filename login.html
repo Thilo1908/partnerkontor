@@ -316,7 +316,24 @@ if (admin) {
   window.location.href = "admin.html";
   return;
 } else {
-  message.textContent = "Angemeldet. Die Zuordnung Ihres Partner- oder Kundenzugangs wird eingerichtet.";
+  const { data: partner, error: partnerError } = await supabaseClient
+    .from("partners")
+    .select("id, partner_number, status")
+    .eq("auth_user_id", data.user.id)
+    .maybeSingle();
+
+  if (partnerError) {
+    message.textContent = "Partnerprüfung fehlgeschlagen: " + partnerError.message;
+    return;
+  }
+
+  if (partner && partner.status === "approved") {
+    message.textContent = "Partner-Anmeldung erfolgreich.";
+    window.location.href = "partner.html";
+    return;
+  }
+
+  message.textContent = "Angemeldet, aber noch kein freigegebener Partnerzugang zugeordnet.";
 }
 
 });
