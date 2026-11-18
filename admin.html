@@ -263,6 +263,31 @@ Partnerverwaltung öffnen
 <p>Zentrale Kennzahlen und Entwicklungen einsehen.</p>
 <button class="secondary" disabled>In Vorbereitung</button>
 </div>
+  <div class="card">
+  <h2>Partner-Suchradius</h2>
+  <p>Legt fest, in welchem Umkreis passende Partner gesucht werden.</p>
+
+  <label for="matchingRadius">
+    Suchradius: <strong><span id="matchingRadiusValue">50</span> km</strong>
+  </label>
+
+  <input
+    type="range"
+    id="matchingRadius"
+    min="5"
+    max="300"
+    step="5"
+    value="50"
+  >
+
+  <button class="primary" id="saveMatchingRadius">
+    Suchradius speichern
+  </button>
+
+  <p id="matchingRadiusMessage" class="subtitle">
+    Aktueller Suchradius wird geladen ...
+  </p>
+</div>
 
 </div>
 
@@ -517,10 +542,54 @@ async function pruefeZugang() {
     "Administratorzugang erfolgreich geprüft.";
 
   document.getElementById("dashboard").classList.remove("hidden");
+  ladeSuchradius();
   document.getElementById("logout").style.display = "block";
 }
 
-async function ladeGeschaeftsbereiche() {
+async function ladeSuchradius() {
+  const input = document.getElementById("matchingRadius");
+  const anzeige = document.getElementById("matchingRadiusValue");
+  const meldung = document.getElementById("matchingRadiusMessage");
+
+  const { data, error } = await supabaseClient
+    .from("platform_settings")
+    .select("matching_radius_km")
+    .eq("id", true)
+    .single();
+
+  if (error) {
+    meldung.textContent = "Fehler beim Laden: " + error.message;
+    return;
+  }
+
+  input.value = data.matching_radius_km;
+  anzeige.textContent = data.matching_radius_km;
+  meldung.textContent = "Aktueller Suchradius: " + data.matching_radius_km + " km";
+}
+  document.getElementById("matchingRadius").addEventListener("input", function () {
+  document.getElementById("matchingRadiusValue").textContent = this.value;
+});
+
+document.getElementById("saveMatchingRadius").addEventListener("click", async function () {
+  const input = document.getElementById("matchingRadius");
+  const meldung = document.getElementById("matchingRadiusMessage");
+
+  const { error } = await supabaseClient
+    .from("platform_settings")
+    .update({
+      matching_radius_km: Number(input.value),
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", true);
+
+  if (error) {
+    meldung.textContent = "Fehler beim Speichern: " + error.message;
+    return;
+  }
+
+  meldung.textContent = "Suchradius gespeichert: " + input.value + " km";
+});
+  async function ladeGeschaeftsbereiche() {
   const container = document.getElementById("businessAreas");
 
   const { data, error } = await supabaseClient
