@@ -467,6 +467,7 @@ Abbrechen
             <th>Betreff</th>
             <th>Beschreibung</th>
             <th>Status</th>
+            <th>Partnerzuordnung</th>
           </tr>
         </thead>
         <tbody id="inquiryTable"></tbody>
@@ -1021,6 +1022,26 @@ async function ladeAnfragen() {
     bereichNamen[area.id] = area.name;
   });
 
+  const { data: freigegebenePartner, error: partnerError } =
+  await supabaseClient
+    .from("partners")
+    .select("id, partner_number, company_name")
+    .eq("status", "approved");
+
+if (partnerError) {
+  message.textContent = "Fehler beim Laden der Partner: " + partnerError.message;
+  return;
+}
+
+const { data: partnerBereiche, error: bereicheError } =
+  await supabaseClient
+    .from("partner_business_areas")
+    .select("partner_id, business_area_id");
+
+if (bereicheError) {
+  message.textContent = "Fehler beim Laden der Geschäftsbereiche: " + bereicheError.message;
+  return;
+}
   table.innerHTML = anfragen.map(anfrage => {
     const datum = anfrage.created_at
       ? new Date(anfrage.created_at).toLocaleString("de-DE")
@@ -1028,6 +1049,12 @@ async function ladeAnfragen() {
 
     const status =
       inquiryStatusNames[anfrage.status] || anfrage.status || "–";
+   const passendePartner = (freigegebenePartner || []).filter(partner =>
+  (partnerBereiche || []).some(eintrag =>
+    eintrag.partner_id === partner.id &&
+    eintrag.business_area_id === anfrage.business_area_id
+  )
+);
 
     return `
       <tr>
@@ -1042,7 +1069,20 @@ async function ladeAnfragen() {
         <td>${escapeHTML(bereichNamen[anfrage.business_area_id] || "–")}</td>
         <td>${escapeHTML(anfrage.subject)}</td>
         <td>${escapeHTML(anfrage.description)}</td>
-        <td><span class="badge">${escapeHTML(status)}</span></td>
+        <td>
+  <span class="badge">${escapeHTML(status)}</span>
+</td>
+<td>
+  <select data-inquiry-id="${escapeHTML(anfrage.id)}">
+    <option value="">Partner auswählen</option>
+    ${passendePartner.map(partner => `
+      <option value="${escapeHTML(partner.id)}"
+        ${anfrage.partner_id === partner.id ? "selected" : ""}>
+        ${escapeHTML(partner.partner_number)} – ${escapeHTML(partner.company_name)}
+      </option>
+    `).join("")}
+  </select>
+</td>
       </tr>
     `;
   }).join("");
@@ -1076,6 +1116,35 @@ document.getElementById("openInquiries")
 
 document.getElementById("reloadInquiries")
   .addEventListener("click", ladeAnfragen);
+  document.getElementById("inquiryTable")
+  .addEventListener("change", async event => {
+    const inquiryId = event.target.dataset.inquiryId;
+
+    if (!inquiryId) return;
+
+    const partnerId = event.target.value;
+
+    const { error } = await supabaseClient
+      .from("inquiries")
+      .update({
+        partner_id: partnerId || null,
+        status: partnerId ? "assigned" : "new"
+      })
+      .eq("id", inquiryId);
+
+    if (error) {
+      alert("Partnerzuordnung konnte nicht gespeichert werden: " + error.message);
+      await ladeAnfragen();
+      return;
+    }
+
+    alert(partnerId
+      ? "Partner wurde erfolgreich zugeordnet."
+      : "Partnerzuordnung wurde aufgehoben."
+    );
+
+    await ladeAnfragen();
+  });
 
 document.getElementById("backDashboardFromInquiries")
   .addEventListener("click", () => {
