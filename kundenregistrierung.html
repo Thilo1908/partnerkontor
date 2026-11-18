@@ -5,9 +5,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PARTNERKONTOR – Kundenregistrierung</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -15,55 +20,155 @@ body {
   color: #26364a;
   min-height: 100vh;
 }
+
 header {
   padding: 22px;
   text-align: center;
   color: white;
   border-bottom: 3px solid #c49b55;
 }
-header span { color: #c49b55; }
+
+header span {
+  color: #c49b55;
+}
+
 main {
   max-width: 550px;
   margin: 35px auto;
   padding: 20px;
 }
+
 .card {
   background: white;
   padding: 30px;
   border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.15);
 }
-h1 { color: #102943; text-align: center; }
+
+h1 {
+  color: #102943;
+  text-align: center;
+  font-size: 25px;
+}
+
+.intro {
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 25px;
+}
+
 label {
   display: block;
-  margin: 15px 0 6px;
+  margin: 17px 0 7px;
   font-weight: bold;
 }
-input {
+
+.required {
+  color: #b33a32;
+}
+
+input:not([type="checkbox"]) {
+  display: block;
   width: 100%;
   padding: 12px;
   border: 1px solid #ccd3dc;
   border-radius: 6px;
   font-size: 15px;
+  background: #fff;
 }
+
+input:focus {
+  outline: none;
+  border-color: #c49b55;
+  box-shadow: 0 0 0 2px rgba(196,155,85,0.15);
+}
+
+.privacy-link {
+  display: block;
+  text-align: center;
+  padding: 13px;
+  margin-top: 25px;
+  border: 1px solid #c49b55;
+  border-radius: 6px;
+  color: #102943;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.privacy-link:hover {
+  background: #f8f3e9;
+}
+
+.privacy-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 18px;
+  font-weight: normal;
+  line-height: 1.5;
+}
+
+.privacy-check input {
+  width: auto;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.privacy-check a {
+  color: #176b87;
+}
+
 button {
   width: 100%;
-  margin-top: 22px;
-  padding: 14px;
+  margin-top: 25px;
+  padding: 15px;
   background: #c49b55;
   color: #102943;
   border: 0;
   border-radius: 6px;
+  font-size: 16px;
   font-weight: bold;
   cursor: pointer;
 }
+
+button:hover {
+  background: #d5b574;
+}
+
 #message {
   margin-top: 18px;
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
-a { color: #176b87; }
+
+.login-link {
+  text-align: center;
+  margin-top: 22px;
+}
+
+a {
+  color: #176b87;
+}
+
+.hint {
+  font-size: 12px;
+  color: #697586;
+  margin-top: 5px;
+}
+
+@media (max-width: 600px) {
+  main {
+    margin: 15px auto;
+    padding: 12px;
+  }
+
+  .card {
+    padding: 22px;
+  }
+}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -73,43 +178,120 @@ a { color: #176b87; }
 
 <main>
 <div class="card">
+
   <h1>Kundenkonto erstellen</h1>
-  <p>Registrieren Sie sich für Ihren persönlichen Zugang.</p>
+
+  <p class="intro">
+    Registrieren Sie sich für Ihren persönlichen Zugang.
+    Füllen Sie bitte die folgenden Felder aus.
+  </p>
 
   <form id="registrationForm">
-    <label for="firstName">Vorname</label>
-    <input id="firstName" type="text" required>
 
-    <label for="lastName">Nachname</label>
-    <input id="lastName" type="text" required>
+    <label for="firstName">
+      Vorname <span class="required">*</span>
+    </label>
+    <input id="firstName" type="text" required autocomplete="given-name">
 
-    <label for="email">E-Mail-Adresse</label>
+    <label for="lastName">
+      Nachname <span class="required">*</span>
+    </label>
+    <input id="lastName" type="text" required autocomplete="family-name">
+
+    <label for="email">
+      E-Mail-Adresse <span class="required">*</span>
+    </label>
     <input id="email" type="email" required autocomplete="email">
 
     <label for="phone">Telefon</label>
-    <input id="phone" type="tel">
+    <input id="phone" type="tel" autocomplete="tel">
 
-    <label for="street">Straße und Hausnummer</label>
-    <input id="street" type="text">
+    <label for="street">
+      Straße und Hausnummer <span class="required">*</span>
+    </label>
+    <input id="street" type="text" required autocomplete="street-address">
 
-    <label for="postalCode">Postleitzahl</label>
-    <input id="postalCode" type="text">
+    <label for="postalCode">
+      Postleitzahl <span class="required">*</span>
+    </label>
+    <input
+      id="postalCode"
+      type="text"
+      required
+      pattern="[0-9]{5}"
+      maxlength="5"
+      inputmode="numeric"
+      autocomplete="postal-code"
+      title="Bitte eine fünfstellige Postleitzahl eingeben."
+    >
 
-    <label for="city">Wohnort</label>
-<input id="city" type="text" list="citySuggestions" autocomplete="off">
-<datalist id="citySuggestions"></datalist>
+    <label for="city">
+      Wohnort <span class="required">*</span>
+    </label>
+    <input
+      id="city"
+      type="text"
+      list="citySuggestions"
+      autocomplete="off"
+      required
+    >
+    <datalist id="citySuggestions"></datalist>
 
-    <label for="password">Passwort</label>
-    <input id="password" type="password" minlength="8" required autocomplete="new-password">
+    <label for="password">
+      Passwort <span class="required">*</span>
+    </label>
+    <input
+      id="password"
+      type="password"
+      minlength="8"
+      required
+      autocomplete="new-password"
+    >
+    <p class="hint">Mindestens 8 Zeichen.</p>
 
-    <label for="passwordRepeat">Passwort wiederholen</label>
-    <input id="passwordRepeat" type="password" minlength="8" required autocomplete="new-password">
+    <label for="passwordRepeat">
+      Passwort wiederholen <span class="required">*</span>
+    </label>
+    <input
+      id="passwordRepeat"
+      type="password"
+      minlength="8"
+      required
+      autocomplete="new-password"
+    >
 
-    <button type="submit">Kundenkonto erstellen</button>
+    <a href="datenschutz.html"
+       class="privacy-link"
+       target="_blank"
+       rel="noopener">
+      Datenschutzerklärung ansehen
+    </a>
+
+    <label class="privacy-check">
+      <input type="checkbox" id="privacyAccepted" required>
+      <span>
+        Ich habe die
+        <a href="datenschutz.html" target="_blank" rel="noopener">
+          Datenschutzerklärung
+        </a>
+        gelesen und zur Kenntnis genommen.
+        <span class="required">*</span>
+      </span>
+    </label>
+
+    <button type="submit">
+      Kundenkonto erstellen
+    </button>
+
   </form>
 
   <p id="message"></p>
-  <p>Sie haben bereits ein Konto? <a href="login.html">Hier anmelden</a></p>
+
+  <p class="login-link">
+    Sie haben bereits ein Konto?
+    <a href="login.html">Hier anmelden</a>
+  </p>
+
 </div>
 </main>
 
@@ -121,18 +303,21 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
+
 // Automatische Ortssuche anhand der Postleitzahl
+
 const postalCodeInput = document.getElementById("postalCode");
 const cityInput = document.getElementById("city");
 const citySuggestions = document.getElementById("citySuggestions");
 
-postalCodeInput.addEventListener("input", async function () {
+postalCodeInput.addEventListener("input", async function() {
+
   const postalCode = postalCodeInput.value.trim();
 
   citySuggestions.innerHTML = "";
   cityInput.value = "";
 
-  if (postalCode.length !== 5) return;
+  if (!/^[0-9]{5}$/.test(postalCode)) return;
 
   const { data, error } = await supabaseClient
     .from("postal_code_coordinates")
@@ -145,18 +330,27 @@ postalCodeInput.addEventListener("input", async function () {
     return;
   }
 
-  const uniquePlaces = [...new Set(data.map(item => item.place_name))];
+  const uniquePlaces = [...new Set(
+    data.map(item => item.place_name)
+  )];
 
   uniquePlaces.forEach(place => {
     const option = document.createElement("option");
     option.value = place;
     citySuggestions.appendChild(option);
   });
+
 });
-document.getElementById("registrationForm").addEventListener("submit", async function(event) {
+
+// Kundenregistrierung
+
+document.getElementById("registrationForm")
+.addEventListener("submit", async function(event) {
+
   event.preventDefault();
 
   const message = document.getElementById("message");
+
   const firstName = document.getElementById("firstName").value.trim();
   const lastName = document.getElementById("lastName").value.trim();
   const email = document.getElementById("email").value.trim();
@@ -185,17 +379,20 @@ document.getElementById("registrationForm").addEventListener("submit", async fun
   });
 
   if (error) {
-    message.textContent = "Registrierung fehlgeschlagen: " + error.message;
+    message.textContent =
+      "Registrierung fehlgeschlagen: " + error.message;
     return;
   }
 
   if (!data.user) {
-    message.textContent = "Es konnte kein Benutzerkonto erstellt werden.";
+    message.textContent =
+      "Es konnte kein Benutzerkonto erstellt werden.";
     return;
   }
 
   if (!data.session) {
-    message.textContent = "Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse. Danach können Sie sich anmelden.";
+    message.textContent =
+      "Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse. Danach können Sie sich anmelden.";
     return;
   }
 
@@ -207,13 +404,15 @@ document.getElementById("registrationForm").addEventListener("submit", async fun
       last_name: lastName,
       email: email,
       phone: phone || null,
-      street: street || null,
-      postal_code: postalCode || null,
-      city: city || null,
+      street: street,
+      postal_code: postalCode,
+      city: city,
       status: "pending"
     });
 
   if (customerError) {
+    console.error("Kundenprofil-Fehler:", customerError);
+
     message.textContent =
       "Login wurde erstellt, aber das Kundenprofil konnte nicht gespeichert werden. Bitte den Support kontaktieren.";
     return;
@@ -225,6 +424,7 @@ document.getElementById("registrationForm").addEventListener("submit", async fun
   setTimeout(() => {
     window.location.href = "login.html";
   }, 3000);
+
 });
 </script>
 
