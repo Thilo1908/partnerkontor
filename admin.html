@@ -1087,49 +1087,93 @@ document.getElementById("backDashboardFromInquiries")
 
 pruefeZugang();
   
-// PLZ-Suche mit Supabase verbinden
+
+// PLZ-Suche mit sichtbarer Ortsauswahl
 const postalCodeField = document.getElementById("postalCode");
 const cityField = document.getElementById("city");
 
 if (postalCodeField && cityField) {
-  const cityList = document.createElement("datalist");
-  cityList.id = "partnerkontor-city-vorschlaege";
-  document.body.appendChild(cityList);
+  const citySuggestions = document.createElement("div");
 
-  cityField.setAttribute("list", cityList.id);
+  citySuggestions.style.cssText = `
+    display: none;
+    background: white;
+    border: 1px solid #c49b55;
+    border-radius: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 4px;
+    position: relative;
+    z-index: 1000;
+  `;
 
-  postalCodeField.addEventListener("input", async () => {
+  cityField.parentElement.appendChild(citySuggestions);
+
+  let searchTimeout;
+
+  postalCodeField.addEventListener("input", () => {
+    clearTimeout(searchTimeout);
+
     const plz = postalCodeField.value.trim();
+
+    citySuggestions.innerHTML = "";
+    citySuggestions.style.display = "none";
 
     if (!/^\d{5}$/.test(plz)) return;
 
-    const { data, error } = await supabaseClient
-      .from("postal_code_coordinates")
-      .select("place_name")
-      .eq("postal_code", plz)
-      .order("place_name");
+    searchTimeout = setTimeout(async () => {
+      citySuggestions.innerHTML = "Orte werden gesucht ...";
+      citySuggestions.style.display = "block";
 
-    if (error) {
-      console.error("Fehler bei der PLZ-Suche:", error);
-      return;
-    }
+      const { data, error } = await supabaseClient
+        .from("postal_code_coordinates")
+        .select("place_name")
+        .eq("postal_code", plz)
+        .order("place_name");
 
-    cityList.innerHTML = "";
+      citySuggestions.innerHTML = "";
 
-    const places = [...new Set((data || []).map(row => row.place_name))];
+      if (error) {
+        citySuggestions.textContent =
+          "Fehler bei der Ortssuche: " + error.message;
+        return;
+      }
 
-    places.forEach(place => {
-      const option = document.createElement("option");
-      option.value = place;
-      cityList.appendChild(option);
-    });
+      const places = [
+        ...new Set((data || []).map(row => row.place_name))
+      ];
 
-    if (places.length === 1) {
-      cityField.value = places[0];
-    }
+      if (places.length === 0) {
+        citySuggestions.textContent =
+          "Keine Orte zu dieser Postleitzahl gefunden.";
+        return;
+      }
+
+      places.forEach(place => {
+        const option = document.createElement("div");
+
+        option.textContent = place;
+        option.style.cssText = `
+          padding: 12px;
+          cursor: pointer;
+          border-bottom: 1px solid #eee;
+        `;
+
+        option.addEventListener("click", () => {
+          cityField.value = place;
+          citySuggestions.style.display = "none";
+        });
+
+        citySuggestions.appendChild(option);
+      });
+
+      if (places.length === 1) {
+        cityField.value = places[0];
+        citySuggestions.style.display = "none";
+      }
+    }, 300);
   });
 }
-
 </script>
 
 </body>
