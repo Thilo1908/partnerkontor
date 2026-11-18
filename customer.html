@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PARTNERKONTOR – Kundenbereich</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #102943;
+      color: #26364a;
+      min-height: 100vh;
+    }
+    header {
+      background: #ffffff;
+      padding: 22px;
+      text-align: center;
+    }
+    main {
+      max-width: 850px;
+      margin: 35px auto;
+      padding: 25px;
+    }
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    button {
+      background: #176b87;
+      color: white;
+      border: 0;
+      padding: 12px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #status { color: #ffffff; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>PARTNERKONTOR</h1>
+  <p>Mein Kundenbereich</p>
+</header>
+
+<main>
+  <div class="card" id="customerCard">
+    <h2>Mein Kundenkonto</h2>
+    <p id="welcome">Kundenkonto wird geladen ...</p>
+    <p id="customerNumber"></p>
+    <button id="logoutButton">Abmelden</button>
+  </div>
+  <p id="status"></p>
+</main>
+
+<script>
+  const SUPABASE_URL = "https://gzcsqwnkusvbngljqxbd.supabase.co";
+  const SUPABASE_KEY = "DEIN_BEREITS_VERWENDETER_PUBLIC_ANON_KEY";
+
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  async function loadCustomer() {
+    const { data: sessionData, error: sessionError } =
+      await supabaseClient.auth.getSession();
+
+    if (sessionError || !sessionData.session) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    const user = sessionData.session.user;
+
+    const { data: customer, error } = await supabaseClient
+      .from("customers")
+      .select("first_name, last_name, status")
+      .eq("auth_user_id", user.id)
+      .maybeSingle();
+
+    if (error) {
+      document.getElementById("welcome").textContent =
+        "Kundenkonto konnte nicht geladen werden.";
+      return;
+    }
+
+    if (!customer || customer.status !== "approved") {
+      document.getElementById("welcome").textContent =
+        "Dein Kundenkonto ist noch nicht freigegeben.";
+      return;
+    }
+
+    document.getElementById("welcome").textContent =
+      "Willkommen " + customer.first_name + " " + customer.last_name + ".";
+  }
+
+  document.getElementById("logoutButton").addEventListener("click", async () => {
+    await supabaseClient.auth.signOut();
+    window.location.href = "login.html";
+  });
+
+  loadCustomer();
+</script>
+
+</body>
+</html>
