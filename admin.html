@@ -1086,6 +1086,50 @@ document.getElementById("backDashboardFromInquiries")
   });
 
 pruefeZugang();
+  
+// PLZ-Suche mit Supabase verbinden
+const postalCodeField = document.getElementById("postalCode");
+const cityField = document.getElementById("city");
+
+if (postalCodeField && cityField) {
+  const cityList = document.createElement("datalist");
+  cityList.id = "partnerkontor-city-vorschlaege";
+  document.body.appendChild(cityList);
+
+  cityField.setAttribute("list", cityList.id);
+
+  postalCodeField.addEventListener("input", async () => {
+    const plz = postalCodeField.value.trim();
+
+    if (!/^\d{5}$/.test(plz)) return;
+
+    const { data, error } = await supabaseClient
+      .from("postal_code_coordinates")
+      .select("place_name")
+      .eq("postal_code", plz)
+      .order("place_name");
+
+    if (error) {
+      console.error("Fehler bei der PLZ-Suche:", error);
+      return;
+    }
+
+    cityList.innerHTML = "";
+
+    const places = [...new Set((data || []).map(row => row.place_name))];
+
+    places.forEach(place => {
+      const option = document.createElement("option");
+      option.value = place;
+      cityList.appendChild(option);
+    });
+
+    if (places.length === 1) {
+      cityField.value = places[0];
+    }
+  });
+}
+
 </script>
 
 </body>
