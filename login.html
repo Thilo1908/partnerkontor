@@ -333,7 +333,23 @@ if (admin) {
     return;
   }
 
-  message.textContent = "Angemeldet, aber noch kein freigegebener Partnerzugang zugeordnet.";
+  const { data: customer, error: customerError } = await supabaseClient
+  .from("customers")
+  .select("id, status")
+  .eq("auth_user_id", data.user.id)
+  .maybeSingle();
+
+if (customerError) {
+  message.textContent = "Kundenprüfung fehlgeschlagen: " + customerError.message;
+  return;
+}
+
+if (customer && customer.status === "approved") {
+  message.textContent = "Kunden-Anmeldung erfolgreich.";
+  window.location.href = "customer.html";
+  return;
+}
+  message.textContent = "Angemeldet, aber noch kein freigegebener Kunden- oder Partnerzugang zugeordnet.";
 }
 
 });
