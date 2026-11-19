@@ -1462,13 +1462,7 @@ async function bearbeiteBewerbung(entscheidung) {
 }
 
 // Bewerbungsbereich öffnen
-  selectedApplication = null;
-
-  document.getElementById("applicationSection")
-    .scrollIntoView({ behavior: "smooth" });
-
-  await ladeBewerbungen();
-});
+document.getElementById("applicationSection")
 
 // Liste aktualisieren
 document.getElementById("reloadApplications")
