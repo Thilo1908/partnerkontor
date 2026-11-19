@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -37,6 +38,10 @@
       padding: 12px 20px;
       border-radius: 6px;
       cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
     }
     #status { color: #ffffff; }
   </style>
@@ -100,9 +105,47 @@
       "Willkommen " + customer.first_name + " " + customer.last_name + ".";
   }
 
+
+  // LOGOUT MIT PROTOKOLLIERUNG
+
   document.getElementById("logoutButton").addEventListener("click", async () => {
-    await supabaseClient.auth.signOut();
+
+    const logoutButton = document.getElementById("logoutButton");
+    const status = document.getElementById("status");
+
+    logoutButton.disabled = true;
+    logoutButton.textContent = "Abmeldung läuft ...";
+
+    // Zuerst Logout im Protokoll speichern
+
+    const { error: auditError } = await supabaseClient.rpc(
+      "log_my_auth_event",
+      { p_event_type: "logout" }
+    );
+
+    if (auditError) {
+      console.error("Logout-Protokollierung fehlgeschlagen:", auditError);
+      status.textContent =
+        "Hinweis: Der Logout konnte nicht protokolliert werden.";
+    }
+
+    // Danach Benutzer abmelden
+
+    const { error: logoutError } = await supabaseClient.auth.signOut();
+
+    if (logoutError) {
+      console.error("Abmeldung fehlgeschlagen:", logoutError);
+
+      status.textContent =
+        "Abmeldung fehlgeschlagen: " + logoutError.message;
+
+      logoutButton.disabled = false;
+      logoutButton.textContent = "Erneut abmelden";
+      return;
+    }
+
     window.location.href = "login.html";
+
   });
 
   loadCustomer();
