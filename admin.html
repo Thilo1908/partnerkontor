@@ -232,6 +232,13 @@ Partnerverwaltung öffnen
 </button>
 </div>
 
+  <div class="card">
+  <h2>Partnerbewerbungen</h2>
+  <p>Neue Bewerbungen prüfen und Partner aufnehmen oder ablehnen.</p>
+  <button class="primary" id="openApplications">
+    Bewerbungen anzeigen
+  </button>
+</div>
 <div class="card">
 <h2>Kundenverwaltung</h2>
 <p>Kunden und ihre Anfragen zentral verwalten.</p>
@@ -435,7 +442,61 @@ Abbrechen
 </div>
 
 </section>
-  
+
+<section id="applicationSection" class="hidden">
+
+  <div class="toolbar">
+    <h2>Partnerbewerbungen</h2>
+    <button class="secondary" id="backDashboardFromApplications">
+      Zurück zur Übersicht
+    </button>
+  </div>
+
+  <div class="panel">
+    <div class="toolbar">
+      <h2>Eingegangene Bewerbungen</h2>
+      <button class="secondary" id="reloadApplications">
+        Aktualisieren
+      </button>
+    </div>
+
+    <div id="applicationMessage" class="message">
+      Bewerbungen werden geladen ...
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Datum</th>
+            <th>Unternehmen</th>
+            <th>Ansprechpartner</th>
+            <th>E-Mail</th>
+            <th>Branche</th>
+            <th>Status</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody id="applicationTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="applicationDetails" class="panel hidden"
+       style="margin-top:25px">
+    <h2>Bewerbungsdetails</h2>
+    <div id="applicationDetailsContent"></div>
+
+    <button class="primary" id="approveApplication">
+      Bewerbung annehmen
+    </button>
+
+    <button class="danger" id="rejectApplication">
+      Bewerbung ablehnen
+    </button>
+  </div>
+
+</section>
 <section id="inquirySection" class="hidden">
 
   <div class="toolbar">
