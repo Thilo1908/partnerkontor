@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -40,6 +41,10 @@
       border-radius: 6px;
       cursor: pointer;
     }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
     #status { margin-top: 20px; }
   </style>
 </head>
@@ -58,7 +63,6 @@
   <script>
     const SUPABASE_URL = "https://gzcsqwnkusvbngljqxbd.supabase.co";
 
-    // Hier muss derselbe öffentliche Supabase-Schlüssel wie in login.html stehen.
     const SUPABASE_ANON_KEY = "sb_publishable_XK17n0IGaBcn6xVb0taypg_idMgx67I";
 
     const supabaseClient = window.supabase.createClient(
@@ -101,7 +105,31 @@
     }
 
     document.getElementById("logoutButton").addEventListener("click", async () => {
-      await supabaseClient.auth.signOut();
+      const button = document.getElementById("logoutButton");
+      const status = document.getElementById("status");
+
+      button.disabled = true;
+      status.textContent = "Abmeldung wird durchgeführt ...";
+
+      // Abmeldung zuerst im Protokoll speichern.
+      const { error: auditError } = await supabaseClient.rpc(
+        "log_my_auth_event",
+        { p_event_type: "logout" }
+      );
+
+      if (auditError) {
+        console.error("Logout-Protokollierung fehlgeschlagen:", auditError);
+      }
+
+      // Danach die Sitzung beenden.
+      const { error: logoutError } = await supabaseClient.auth.signOut();
+
+      if (logoutError) {
+        status.textContent = "Abmeldung fehlgeschlagen: " + logoutError.message;
+        button.disabled = false;
+        return;
+      }
+
       window.location.href = "login.html";
     });
 
