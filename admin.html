@@ -977,11 +977,41 @@ document.getElementById("partnerTable")
     }
   });
 
+
 document.getElementById("logout")
   .addEventListener("click", async () => {
-    await supabaseClient.auth.signOut();
+    const button = document.getElementById("logout");
+
+    button.disabled = true;
+    button.textContent = "Abmeldung läuft ...";
+
+    // Logout-Ereignis zuerst protokollieren.
+    const { error: auditError } = await supabaseClient.rpc(
+      "log_my_auth_event",
+      { p_event_type: "logout" }
+    );
+
+    if (auditError) {
+      console.error(
+        "Logout-Protokollierung fehlgeschlagen:",
+        auditError
+      );
+    }
+
+    // Danach die Sitzung beenden.
+    const { error: logoutError } =
+      await supabaseClient.auth.signOut();
+
+    if (logoutError) {
+      alert("Abmeldung fehlgeschlagen: " + logoutError.message);
+      button.disabled = false;
+      button.textContent = "Abmelden";
+      return;
+    }
+
     window.location.href = "login.html";
   });
+
 
 const inquiryStatusNames = {
   new: "Neu",
