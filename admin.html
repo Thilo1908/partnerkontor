@@ -1334,6 +1334,180 @@ if (postalCodeField && cityField) {
     }, 300);
   });
 }
+  
+// ======================================
+// PARTNERBEWERBUNGEN – ADMINVERWALTUNG
+// ======================================
+
+let applications = [];
+let selectedApplication = null;
+
+async function ladeBewerbungen() {
+  const message = document.getElementById("applicationMessage");
+  const table = document.getElementById("applicationTable");
+
+  message.textContent = "Bewerbungen werden geladen ...";
+
+  const { data, error } = await supabaseClient
+    .from("partner_applications")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    message.textContent = "Fehler beim Laden: " + error.message;
+    return;
+  }
+
+  applications = data || [];
+
+  if (applications.length === 0) {
+    table.innerHTML = "<tr><td>Es liegen noch keine Bewerbungen vor.</td></tr>";
+    message.textContent = "";
+    return;
+  }
+
+  table.innerHTML = `
+    <tr>
+      <th>Eingang</th>
+      <th>Unternehmen</th>
+      <th>Ansprechpartner</th>
+      <th>E-Mail</th>
+      <th>Branche</th>
+      <th>Status</th>
+      <th>Details</th>
+    </tr>
+    ${applications.map(a => `
+      <tr>
+        <td>${escapeHTML(new Date(a.created_at).toLocaleDateString("de-DE"))}</td>
+        <td>${escapeHTML(a.company_name)}</td>
+        <td>${escapeHTML(a.first_name)} ${escapeHTML(a.last_name)}</td>
+        <td>${escapeHTML(a.email)}</td>
+        <td>${escapeHTML(a.industry)}</td>
+        <td>${escapeHTML(a.status)}</td>
+        <td><button type="button" data-application-id="${a.id}">Ansehen</button></td>
+      </tr>
+    `).join("")}
+  `;
+
+  message.textContent = applications.length + " Bewerbung(en) gefunden.";
+}
+
+function zeigeBewerbungsdetails(id) {
+  selectedApplication = applications.find(a => a.id === id);
+  if (!selectedApplication) return;
+
+  const a = selectedApplication;
+  const content = document.getElementById("applicationDetailsContent");
+
+  const feld = (titel, wert) => `
+    <p><strong>${titel}:</strong><br>${escapeHTML(wert || "Keine Angabe")}</p>
+  `;
+
+  content.innerHTML = `
+    <h3>${escapeHTML(a.company_name)}</h3>
+    ${feld("Ansprechpartner", a.first_name + " " + a.last_name)}
+    ${feld("E-Mail", a.email)}
+    ${feld("Telefon", a.phone)}
+    ${feld("Adresse", [a.street, a.postal_code, a.city].filter(Boolean).join(", "))}
+    ${feld("Webseite", a.website)}
+    ${feld("Branche", a.industry)}
+    ${feld("Angebotene Leistungen", a.services)}
+    ${feld("Unternehmensbeschreibung", a.company_description)}
+    ${feld("Motivation", a.motivation)}
+    ${feld("Mehrwert für PARTNERKONTOR", a.added_value)}
+    ${feld("Datenschutzerklärung bestätigt", a.privacy_accepted ? "Ja" : "Nein")}
+    ${feld("Eingegangen am", new Date(a.created_at).toLocaleString("de-DE"))}
+    ${feld("Status", a.status)}
+  `;
+
+  document.getElementById("applicationDetails").style.display = "block";
+  document.getElementById("approveApplication").disabled = a.status !== "pending";
+  document.getElementById("rejectApplication").disabled = a.status !== "pending";
+}
+
+async function bearbeiteBewerbung(entscheidung) {
+  if (!selectedApplication) return;
+
+  const aktion = entscheidung === "approved" ? "freigeben" : "ablehnen";
+
+  if (!confirm("Möchtest du diese Partnerbewerbung wirklich " + aktion + "?")) {
+    return;
+  }
+
+  const approveButton = document.getElementById("approveApplication");
+  const rejectButton = document.getElementById("rejectApplication");
+
+  approveButton.disabled = true;
+  rejectButton.disabled = true;
+
+  const message = document.getElementById("applicationMessage");
+  message.textContent = "Bewerbung wird bearbeitet ...";
+
+  const { error } = await supabaseClient.rpc("review_partner_application", {
+    p_application_id: selectedApplication.id,
+    p_decision: entscheidung
+  });
+
+  if (error) {
+    message.textContent = "Fehler: " + error.message;
+    approveButton.disabled = false;
+    rejectButton.disabled = false;
+    return;
+  }
+
+  message.textContent = "Die Bewerbung wurde erfolgreich " + (entscheidung === "approved" ? "freigegeben." : "abgelehnt.");
+
+  document.getElementById("applicationDetails").style.display = "none";
+  selectedApplication = null;
+
+  await ladeBewerbungen();
+}
+
+// Bewerbungsbereich öffnen
+document.getElementById("openApplications").addEventListener("click", async () => {
+  document.getElementById("applicationSection").style.display = "block";
+
+  const dashboard = document.getElementById("dashboardSection");
+  if (dashboard) dashboard.style.display = "none";
+
+  document.getElementById("applicationDetails").style.display = "none";
+  selectedApplication = null;
+
+  await ladeBewerbungen();
+});
+
+// Liste neu laden
+document.getElementById("reloadApplications").addEventListener("click", ladeBewerbungen);
+
+// Details öffnen
+document.getElementById("applicationTable").addEventListener("click", event => {
+  const button = event.target.closest("[data-application-id]");
+  if (!button) return;
+
+  zeigeBewerbungsdetails(button.dataset.applicationId);
+});
+
+// Bewerbung freigeben
+document.getElementById("approveApplication").addEventListener("click", () => {
+  bearbeiteBewerbung("approved");
+});
+
+// Bewerbung ablehnen
+document.getElementById("rejectApplication").addEventListener("click", () => {
+  bearbeiteBewerbung("rejected");
+});
+
+// Zurück zum Dashboard
+document.getElementById("backDashboardFromApplications").addEventListener("click", () => {
+  document.getElementById("applicationSection").style.display = "none";
+
+  const dashboard = document.getElementById("dashboardSection");
+  if (dashboard) dashboard.style.display = "block";
+
+  document.getElementById("applicationDetails").style.display = "none";
+  selectedApplication = null;
+});
+
 </script>
 
 </body>
