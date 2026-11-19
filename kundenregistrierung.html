@@ -373,9 +373,21 @@ document.getElementById("registrationForm")
 
   message.textContent = "Registrierung wird durchgeführt ...";
 
+  
   const { data, error } = await supabaseClient.auth.signUp({
     email: email,
-    password: password
+    password: password,
+    options: {
+      data: {
+        account_type: "customer",
+        first_name: firstName,
+        last_name: lastName,
+        phone: phone || null,
+        street: street,
+        postal_code: postalCode,
+        city: city
+      }
+    }
   });
 
   if (error) {
@@ -390,42 +402,10 @@ document.getElementById("registrationForm")
     return;
   }
 
-  if (!data.session) {
-    message.textContent =
-      "Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse. Danach können Sie sich anmelden.";
-    return;
-  }
-
-  const { error: customerError } = await supabaseClient
-    .from("customers")
-    .insert({
-      auth_user_id: data.user.id,
-      first_name: firstName,
-      last_name: lastName,
-      email: email,
-      phone: phone || null,
-      street: street,
-      postal_code: postalCode,
-      city: city,
-      status: "pending"
-    });
-
-  if (customerError) {
-    console.error("Kundenprofil-Fehler:", customerError);
-
-    message.textContent =
-      "Login wurde erstellt, aber das Kundenprofil konnte nicht gespeichert werden. Bitte den Support kontaktieren.";
-    return;
-  }
-
   message.textContent =
-    "Registrierung erfolgreich! Ihr Kundenkonto wartet jetzt auf die Freigabe. Sie werden zur Anmeldung weitergeleitet.";
+    "Registrierung erfolgreich! Bitte bestätigen Sie Ihre E-Mail-Adresse über den Link in Ihrem Postfach. Ihr Kundenkonto wartet anschließend auf die Freigabe.";
 
-  setTimeout(() => {
-    window.location.href = "login.html";
-  }, 3000);
-
-});
+  document.getElementById("registrationForm").reset();
 </script>
 
 </body>
