@@ -7,9 +7,7 @@
 <title>PARTNERKONTOR – Login</title>
 
 <style>
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -29,9 +27,7 @@ header {
   font-weight: bold;
 }
 
-header span {
-  color: #c49b55;
-}
+header span { color: #c49b55; }
 
 main {
   flex: 1;
@@ -78,9 +74,7 @@ input {
   font-size: 15px;
 }
 
-input:focus {
-  outline: 2px solid #c49b55;
-}
+input:focus { outline: 2px solid #c49b55; }
 
 .password-field {
   display: flex;
@@ -96,9 +90,7 @@ input:focus {
   min-width: 0;
 }
 
-.password-field input:focus {
-  outline: none;
-}
+.password-field input:focus { outline: none; }
 
 .password-toggle {
   width: auto;
@@ -111,9 +103,7 @@ input:focus {
   cursor: pointer;
 }
 
-.password-toggle:hover {
-  background: #f0f2f5;
-}
+.password-toggle:hover { background: #f0f2f5; }
 
 button {
   width: 100%;
@@ -128,9 +118,7 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  background: #d6ad69;
-}
+button:hover { background: #d6ad69; }
 
 .message {
   margin-top: 18px;
@@ -233,7 +221,6 @@ const supabaseClient = window.supabase.createClient(
 // PASSWORTANZEIGE
 
 const passwordInput = document.getElementById("password");
-
 const togglePassword = document.getElementById("togglePassword");
 
 function showPassword() {
@@ -254,9 +241,7 @@ togglePassword.addEventListener("pointerdown", function(event) {
 });
 
 document.addEventListener("pointerup", hidePassword);
-
 document.addEventListener("pointercancel", hidePassword);
-
 window.addEventListener("blur", hidePassword);
 
 
@@ -286,8 +271,7 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 
   message.textContent = "Anmeldung wird geprüft ...";
 
-  const email = document.getElementById("email").value;
-
+  const email = document.getElementById("email").value.trim();
   const password = passwordInput.value;
 
   const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -302,20 +286,41 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
     return;
   }
 
-  message.textContent = "Anmeldung erfolgreich. Ihr Zugang wird geprüft.";
+  message.textContent = "Anmeldung erfolgreich. Das Protokoll wird erstellt ...";
 
-  const { data: admin, error: adminError } = await supabaseClient.rpc("is_app_admin");
+
+  // LOGIN IM ZENTRALEN PROTOKOLL SPEICHERN
+
+  const { error: auditError } = await supabaseClient.rpc(
+    "log_my_auth_event",
+    { p_event_type: "login" }
+  );
+
+  if (auditError) {
+    console.error("Login-Protokollierung fehlgeschlagen:", auditError);
+  }
+
+
+  // ADMINISTRATOR PRÜFEN
+
+  const { data: admin, error: adminError } =
+    await supabaseClient.rpc("is_app_admin");
 
   if (adminError) {
-    message.textContent = "Anmeldung erfolgreich, aber die Berechtigungen konnten nicht geprüft werden.";
+    message.textContent =
+      "Anmeldung erfolgreich, aber die Berechtigungen konnten nicht geprüft werden.";
     return;
   }
 
-if (admin) {
-  message.textContent = "Administrator-Anmeldung erfolgreich.";
-  window.location.href = "admin.html";
-  return;
-} else {
+  if (admin) {
+    message.textContent = "Administrator-Anmeldung erfolgreich.";
+    window.location.href = "admin.html";
+    return;
+  }
+
+
+  // PARTNER PRÜFEN
+
   const { data: partner, error: partnerError } = await supabaseClient
     .from("partners")
     .select("id, partner_number, status")
@@ -323,7 +328,8 @@ if (admin) {
     .maybeSingle();
 
   if (partnerError) {
-    message.textContent = "Partnerprüfung fehlgeschlagen: " + partnerError.message;
+    message.textContent =
+      "Partnerprüfung fehlgeschlagen: " + partnerError.message;
     return;
   }
 
@@ -333,24 +339,29 @@ if (admin) {
     return;
   }
 
+
+  // KUNDE PRÜFEN
+
   const { data: customer, error: customerError } = await supabaseClient
-  .from("customers")
-  .select("id, status")
-  .eq("auth_user_id", data.user.id)
-  .maybeSingle();
+    .from("customers")
+    .select("id, status")
+    .eq("auth_user_id", data.user.id)
+    .maybeSingle();
 
-if (customerError) {
-  message.textContent = "Kundenprüfung fehlgeschlagen: " + customerError.message;
-  return;
-}
+  if (customerError) {
+    message.textContent =
+      "Kundenprüfung fehlgeschlagen: " + customerError.message;
+    return;
+  }
 
-if (customer && customer.status === "approved") {
-  message.textContent = "Kunden-Anmeldung erfolgreich.";
-  window.location.href = "customer.html";
-  return;
-}
-  message.textContent = "Angemeldet, aber noch kein freigegebener Kunden- oder Partnerzugang zugeordnet.";
-}
+  if (customer && customer.status === "approved") {
+    message.textContent = "Kunden-Anmeldung erfolgreich.";
+    window.location.href = "customer.html";
+    return;
+  }
+
+  message.textContent =
+    "Angemeldet, aber noch kein freigegebener Kunden- oder Partnerzugang zugeordnet.";
 
 });
 
@@ -358,4 +369,3 @@ if (customer && customer.status === "approved") {
 
 </body>
 </html>
-
