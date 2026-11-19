@@ -1471,6 +1471,11 @@ document.getElementById("openApplications").addEventListener("click", async () =
 
   selectedApplication = null;
 
+  await ladeBewerbungen();
+});
+
+  selectedApplication = null;
+
   document.getElementById("applicationSection")
     .scrollIntoView({ behavior: "smooth" });
 
