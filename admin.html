@@ -1461,9 +1461,22 @@ async function bearbeiteBewerbung(entscheidung) {
   await ladeBewerbungen();
 }
 
-// Bewerbungsbereich öffnen
-document.getElementById("applicationSection")
 
+  // Bewerbungsbereich öffnen
+  document.getElementById("openApplications").addEventListener("click", async () => {
+    document.getElementById("partnerSection").classList.add("hidden");
+    document.getElementById("inquirySection").classList.add("hidden");
+
+    document.getElementById("applicationSection").classList.remove("hidden");
+    document.getElementById("applicationDetails").classList.add("hidden");
+
+    selectedApplication = null;
+
+    document.getElementById("applicationSection")
+      .scrollIntoView({ behavior: "smooth" });
+
+    await ladeBewerbungen();
+  });
 // Liste aktualisieren
 document.getElementById("reloadApplications")
   .addEventListener("click", ladeBewerbungen);
