@@ -159,6 +159,48 @@ th {
 }
 
 .hidden { display: none !important; }
+  /* ZENTRALE ADMIN-NAVIGATION */
+.admin-navigation {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #102943;
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  border-bottom: 3px solid #c49b55;
+}
+
+.admin-navigation button {
+  background: #203e59;
+  color: white;
+  border: 1px solid #52677b;
+  padding: 10px 13px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.admin-navigation button.active {
+  background: #c49b55;
+  color: #102943;
+}
+
+.admin-navigation button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media(max-width:600px) {
+  .admin-navigation {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .admin-navigation button {
+    white-space: nowrap;
+  }
+}
 
 .message {
   padding: 12px;
@@ -221,8 +263,20 @@ Zentrale Verwaltung der PARTNERKONTOR-Plattform
 <div id="status">Zugang wird geprüft ...</div>
 
 <div id="dashboard" class="hidden">
+  <nav class="admin-navigation" id="adminNavigation">
+  <button type="button" data-page="home" class="active">Verwaltungsbereich</button>
+  <button type="button" data-page="partners">Partnerverwaltung</button>
+  <button type="button" data-page="applications">Partnerbewerbungen</button>
+  <button type="button" data-page="customers" disabled>Kundenverwaltung</button>
+  <button type="button" data-page="inquiries">Anfragenverwaltung</button>
+  <button type="button" data-page="placements" disabled>Vermittlungen</button>
+  <button type="button" data-page="commissions" disabled>Provisionen</button>
+  <button type="button" data-page="overview" disabled>Plattformübersicht</button>
+  <button type="button" data-page="settings" disabled>Einstellungen</button>
+  <button type="button" id="navBack">Zurück</button>
+</nav>
 
-<div class="grid">
+<div class="grid" id="dashboardGrid">
 
 <div class="card">
 <h2>Partnerverwaltung</h2>
