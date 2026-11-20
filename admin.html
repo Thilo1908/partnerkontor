@@ -255,7 +255,7 @@ footer {
 
 <main>
 
-<h1>Administratorbereich</h1>
+<h1>Verwaltungsbereich</h1>
 <p class="subtitle">
 Zentrale Verwaltung der PARTNERKONTOR-Plattform
 </p>
@@ -632,6 +632,83 @@ function escapeHTML(value) {
     "'": "&#039;"
   })[char]);
 }
+  let adminPageHistory = [];
+let currentAdminPage = "home";
+
+async function navigateAdmin(page, remember = true) {
+
+  if (remember && currentAdminPage !== page) {
+    adminPageHistory.push(currentAdminPage);
+  }
+
+  currentAdminPage = page;
+
+  const dashboardGrid = document.getElementById("dashboardGrid");
+  const partnerSection = document.getElementById("partnerSection");
+  const applicationSection = document.getElementById("applicationSection");
+  const inquirySection = document.getElementById("inquirySection");
+
+  dashboardGrid.classList.add("hidden");
+  partnerSection.classList.add("hidden");
+  applicationSection.classList.add("hidden");
+  inquirySection.classList.add("hidden");
+
+  document.querySelectorAll("#adminNavigation button[data-page]")
+    .forEach(button => {
+      button.classList.toggle("active", button.dataset.page === page);
+    });
+
+  if (page === "home") {
+    dashboardGrid.classList.remove("hidden");
+  }
+
+  if (page === "partners") {
+    partnerSection.classList.remove("hidden");
+    await ladePartner();
+    await ladeGeschaeftsbereiche();
+  }
+
+  if (page === "applications") {
+    applicationSection.classList.remove("hidden");
+    await ladeBewerbungen();
+  }
+
+  if (page === "inquiries") {
+    inquirySection.classList.remove("hidden");
+
+    const { data, error } = await supabaseClient
+      .from("business_areas")
+      .select("*")
+      .order("name");
+
+    if (!error) {
+      businessAreas = data || [];
+    }
+
+    await ladeAnfragen();
+  }
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.querySelectorAll("#adminNavigation button[data-page]")
+  .forEach(button => {
+    button.addEventListener("click", () => {
+      if (!button.disabled) {
+        navigateAdmin(button.dataset.page);
+      }
+    });
+  });
+
+document.getElementById("navBack")
+  .addEventListener("click", () => {
+    if (adminPageHistory.length > 0) {
+      const previousPage = adminPageHistory.pop();
+      navigateAdmin(previousPage, false);
+    } else {
+      navigateAdmin("home", false);
+    }
+  });
 
 async function pruefeZugang() {
   const status = document.getElementById("status");
@@ -1034,23 +1111,13 @@ async function loeschePartner(id) {
 }
 
 document.getElementById("openPartners")
-  .addEventListener("click", async () => {
-    document.getElementById("partnerSection")
-      .classList.remove("hidden");
-
-    document.getElementById("partnerSection")
-      .scrollIntoView({ behavior: "smooth" });
-
-    await ladePartner();
-    await ladeGeschaeftsbereiche();
+  .addEventListener("click", () => {
+    navigateAdmin("partners");
   });
 
 document.getElementById("backDashboard")
   .addEventListener("click", () => {
-    document.getElementById("partnerSection")
-      .classList.add("hidden");
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    navigateAdmin("home");
   });
 
 document.getElementById("newPartner")
@@ -1237,28 +1304,9 @@ if (bereicheError) {
 }
 
 document.getElementById("openInquiries")
-  .addEventListener("click", async () => {
-    document.getElementById("partnerSection")
-      .classList.add("hidden");
-
-    document.getElementById("inquirySection")
-      .classList.remove("hidden");
-
-    document.getElementById("inquirySection")
-      .scrollIntoView({ behavior: "smooth" });
-
-    const { data, error } = await supabaseClient
-      .from("business_areas")
-      .select("*")
-      .order("name");
-
-    if (!error) {
-      businessAreas = data || [];
-    }
-
-    await ladeAnfragen();
+  .addEventListener("click", () => {
+    navigateAdmin("inquiries");
   });
-
 document.getElementById("reloadInquiries")
   .addEventListener("click", ladeAnfragen);
   document.getElementById("inquiryTable")
@@ -1559,13 +1607,8 @@ document.getElementById("rejectApplication")
 // Zurück zur Übersicht
 document.getElementById("backDashboardFromApplications")
   .addEventListener("click", () => {
-    document.getElementById("applicationSection").classList.add("hidden");
-    document.getElementById("applicationDetails").classList.add("hidden");
-
-    selectedApplication = null;
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    navigateAdmin("home");
   });
-
 </script>
 
 </body>
