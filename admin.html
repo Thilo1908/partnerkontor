@@ -722,11 +722,13 @@ async function navigateAdmin(page, remember = true) {
   const partnerSection = document.getElementById("partnerSection");
   const applicationSection = document.getElementById("applicationSection");
   const inquirySection = document.getElementById("inquirySection");
-
+const notebookSection = document.getElementById("notebookSection");
+  
   dashboardGrid.classList.add("hidden");
   partnerSection.classList.add("hidden");
   applicationSection.classList.add("hidden");
   inquirySection.classList.add("hidden");
+  notebookSection.classList.add("hidden");
 
   document.querySelectorAll("#adminNavigation button[data-page]")
     .forEach(button => {
@@ -762,7 +764,10 @@ async function navigateAdmin(page, remember = true) {
 
     await ladeAnfragen();
   }
-
+  if (page === "notebook") {
+    notebookSection.classList.remove("hidden");
+    await ladeNotizen();
+  }
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
