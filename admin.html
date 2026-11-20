@@ -595,6 +595,78 @@ Abbrechen
 
 </section>
 
+<section id="notebookSection" class="hidden">
+
+  <div class="toolbar">
+    <h2>Notizbuch</h2>
+    <button class="secondary" type="button" id="backDashboardFromNotebook">
+      Zurück zur Übersicht
+    </button>
+  </div>
+
+  <div class="panel">
+    <h3>Neue Notiz erstellen</h3>
+
+    <label for="notePersonType">Zuordnung</label>
+    <select id="notePersonType">
+      <option value="">Bitte auswählen</option>
+      <option value="partner">Partner</option>
+      <option value="customer">Kunde (KD)</option>
+    </select>
+
+    <label for="notePerson">Partner oder Kunde auswählen</label>
+    <select id="notePerson" disabled>
+      <option value="">Zuerst Zuordnung auswählen</option>
+    </select>
+
+    <div id="notePersonInfo"></div>
+
+    <label for="noteTitle">Titel</label>
+    <input type="text" id="noteTitle" placeholder="Titel der Notiz">
+
+    <label for="noteText">Notiz</label>
+    <textarea id="noteText" rows="5"
+      placeholder="Notiz oder Gesprächsinhalte eingeben"></textarea>
+
+    <label>
+      <input type="checkbox" id="noteImportant">
+      Als wichtige Notiz markieren
+    </label>
+
+    <label>
+      <input type="checkbox" id="noteIsTask">
+      Als Aufgabe speichern
+    </label>
+
+    <label for="noteDueDate">Fälligkeit / Termin</label>
+    <input type="datetime-local" id="noteDueDate">
+
+    <label for="noteReminder">Erinnerung</label>
+    <input type="datetime-local" id="noteReminder">
+
+    <label for="noteFiles">Dateien anhängen (PDF oder Bild)</label>
+    <input type="file" id="noteFiles"
+      accept=".pdf,.jpg,.jpeg,.png,.webp"
+      multiple>
+
+    <button class="primary" type="button" id="saveNote">
+      Notiz speichern
+    </button>
+  </div>
+
+  <div class="panel">
+    <h3>Gespeicherte Notizen</h3>
+
+    <input type="search" id="noteSearch"
+      placeholder="Notizen durchsuchen ...">
+
+    <div id="notesList">
+      Noch keine Notizen geladen.
+    </div>
+  </div>
+
+</section>
+
 </div>
 
 </main>
