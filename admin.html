@@ -1657,6 +1657,40 @@ async function bearbeiteBewerbung(entscheidung) {
     return;
   }
 
+if (entscheidung === "approved") {
+  const { data: partner, error: partnerError } = await supabaseClient
+    .from("partners")
+    .select("id")
+    .eq("email", selectedApplication.email)
+    .maybeSingle();
+
+  if (partnerError || !partner) {
+    message.textContent =
+      "Bewerbung freigegeben, aber Partnereintrag nicht gefunden: " +
+      (partnerError?.message || "Kein Partner mit dieser E-Mail-Adresse gefunden.");
+    await ladeBewerbungen();
+    return;
+  }
+
+  const { error: inviteError } = await supabaseClient.functions.invoke(
+    "invite-partner",
+    {
+      body: {
+        partner_id: partner.id
+      }
+    }
+  );
+
+  if (inviteError) {
+    message.textContent =
+      "Bewerbung freigegeben, aber Einladung fehlgeschlagen: " +
+      inviteError.message;
+    await ladeBewerbungen();
+    return;
+  }
+}
+
+  
   message.textContent = entscheidung === "approved"
     ? "Bewerbung erfolgreich freigegeben."
     : "Bewerbung erfolgreich abgelehnt.";
