@@ -1146,7 +1146,7 @@ document.getElementById("openPartners")
 
 document.getElementById("backDashboard")
   .addEventListener("click", () => {
-    navigateAdmin("home");
+    document.getElementById("navBack").click();
   });
 
 document.getElementById("newPartner")
@@ -1370,9 +1370,8 @@ document.getElementById("reloadInquiries")
 
 document.getElementById("backDashboardFromInquiries")
   .addEventListener("click", () => {
-    navigateAdmin("home");
-  });
-pruefeZugang();
+    document.getElementById("navBack").click();
+  });pruefeZugang();
   
 
 // PLZ-Suche mit sichtbarer Ortsauswahl
@@ -1621,7 +1620,7 @@ document.getElementById("rejectApplication")
 // Zurück zur Übersicht
 document.getElementById("backDashboardFromApplications")
   .addEventListener("click", () => {
-    navigateAdmin("home");
+    document.getElementById("navBack").click();
   });
 </script>
 
