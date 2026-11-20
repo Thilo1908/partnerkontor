@@ -702,6 +702,29 @@ document.querySelectorAll("#adminNavigation button[data-page]")
 
 document.getElementById("navBack")
   .addEventListener("click", () => {
+
+    const partnerForm = document.getElementById("partnerFormPanel");
+    const applicationDetails = document.getElementById("applicationDetails");
+
+    // Zuerst das geöffnete Partnerformular schließen
+    if (
+      currentAdminPage === "partners" &&
+      !partnerForm.classList.contains("hidden")
+    ) {
+      partnerForm.classList.add("hidden");
+      return;
+    }
+
+    // Zuerst geöffnete Bewerbungsdetails schließen
+    if (
+      currentAdminPage === "applications" &&
+      !applicationDetails.classList.contains("hidden")
+    ) {
+      applicationDetails.classList.add("hidden");
+      return;
+    }
+
+    // Sonst zum vorherigen Verwaltungsbereich
     if (adminPageHistory.length > 0) {
       const previousPage = adminPageHistory.pop();
       navigateAdmin(previousPage, false);
@@ -709,7 +732,6 @@ document.getElementById("navBack")
       navigateAdmin("home", false);
     }
   });
-
 async function pruefeZugang() {
   const status = document.getElementById("status");
 
@@ -785,6 +807,11 @@ document.getElementById("saveMatchingRadius").addEventListener("click", async fu
   async function ladeGeschaeftsbereiche() {
   const container = document.getElementById("businessAreas");
 
+  // Bereits ausgewählte Geschäftsbereiche sichern
+  const selectedIds = Array.from(
+    container.querySelectorAll('input[name="businessArea"]:checked')
+  ).map(input => input.value);
+
   const { data, error } = await supabaseClient
     .from("business_areas")
     .select("*")
@@ -797,7 +824,9 @@ document.getElementById("saveMatchingRadius").addEventListener("click", async fu
   }
 
   businessAreas = data || [];
-  renderGeschaeftsbereiche();
+
+  // Vorherige Auswahl wiederherstellen
+  renderGeschaeftsbereiche(selectedIds);
 }
 
 function renderGeschaeftsbereiche(selectedIds = []) {
@@ -1341,12 +1370,8 @@ document.getElementById("reloadInquiries")
 
 document.getElementById("backDashboardFromInquiries")
   .addEventListener("click", () => {
-    document.getElementById("inquirySection")
-      .classList.add("hidden");
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    navigateAdmin("home");
   });
-
 pruefeZugang();
   
 
@@ -1565,21 +1590,10 @@ async function bearbeiteBewerbung(entscheidung) {
 
 
   // Bewerbungsbereich öffnen
-  document.getElementById("openApplications").addEventListener("click", async () => {
-    document.getElementById("partnerSection").classList.add("hidden");
-    document.getElementById("inquirySection").classList.add("hidden");
-
-    document.getElementById("applicationSection").classList.remove("hidden");
-    document.getElementById("applicationDetails").classList.add("hidden");
-
-    selectedApplication = null;
-
-    document.getElementById("applicationSection")
-      .scrollIntoView({ behavior: "smooth" });
-
-    await ladeBewerbungen();
-  });
-// Liste aktualisieren
+document.getElementById("openApplications")
+  .addEventListener("click", () => {
+    navigateAdmin("applications");
+  });// Liste aktualisieren
 document.getElementById("reloadApplications")
   .addEventListener("click", ladeBewerbungen);
 
