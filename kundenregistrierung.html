@@ -274,13 +274,22 @@ a {
     <label for="passwordRepeat">
       Passwort wiederholen <span class="required">*</span>
     </label>
-    <input
-      id="passwordRepeat"
-      type="password"
-      minlength="8"
-      required
-      autocomplete="new-password"
-    >
+<div style="position:relative;">
+  <input
+    id="passwordRepeat"
+    type="password"
+    minlength="8"
+    required
+    autocomplete="new-password"
+    style="padding-right:45px;"
+  >
+  <button type="button"
+    onclick="togglePassword('passwordRepeat', this)"
+    aria-label="Passwort anzeigen"
+    style="position:absolute;right:5px;top:50%;transform:translateY(-50%);width:38px;margin:0;padding:6px;background:transparent;color:#102943;border:0;cursor:pointer;font-size:19px;">
+    ◉
+  </button>
+</div>
 
     <a href="datenschutz.html"
        class="privacy-link"
@@ -325,6 +334,19 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
+  function togglePassword(fieldId, button) {
+  const field = document.getElementById(fieldId);
+
+  if (field.type === "password") {
+    field.type = "text";
+    button.textContent = "◎";
+    button.setAttribute("aria-label", "Passwort verbergen");
+  } else {
+    field.type = "password";
+    button.textContent = "◉";
+    button.setAttribute("aria-label", "Passwort anzeigen");
+  }
+}
 
 // Automatische Ortssuche anhand der Postleitzahl
 
