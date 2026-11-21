@@ -134,7 +134,13 @@ button {
 button:hover {
   background: #d5b574;
 }
-  .password-toggle {
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.password-toggle {
   position: absolute;
   right: 5px;
   top: 50%;
@@ -261,61 +267,61 @@ a {
     <datalist id="citySuggestions"></datalist>
 
     <label for="birthDate">Geburtsdatum</label>
-<input id="birthDate" type="date" autocomplete="bday">
+    <input id="birthDate" type="date" autocomplete="bday">
 
-<label for="customerRequest">
-  Ihr Anliegen (optional)
-</label>
-<textarea
-  id="customerRequest"
-  rows="4"
-  placeholder="Beschreiben Sie kurz Ihr Anliegen..."
-  style="width:100%;padding:12px;border:1px solid #ccd3dc;border-radius:6px;font-size:15px;font-family:Arial,sans-serif;resize:vertical;"
-></textarea>
-    
-<label for="password">
-  Passwort <span class="required">*</span>
-</label>
+    <label for="customerRequest">
+      Ihr Anliegen (optional)
+    </label>
+    <textarea
+      id="customerRequest"
+      rows="4"
+      placeholder="Beschreiben Sie kurz Ihr Anliegen..."
+      style="width:100%;padding:12px;border:1px solid #ccd3dc;border-radius:6px;font-size:15px;font-family:Arial,sans-serif;resize:vertical;"
+    ></textarea>
 
-<div style="position:relative;">
-  <input
-    id="password"
-    type="password"
-    minlength="8"
-    required
-    autocomplete="new-password"
-    style="padding-right:45px;"
-  >
-  <button
-    type="button"
-    class="password-toggle"
-    onclick="togglePassword('password', this)"
-    aria-label="Passwort anzeigen"
-  >👁</button>
-</div>
+    <label for="password">
+      Passwort <span class="required">*</span>
+    </label>
 
-<p class="hint">Mindestens 8 Zeichen.</p>
+    <div style="position:relative;">
+      <input
+        id="password"
+        type="password"
+        minlength="8"
+        required
+        autocomplete="new-password"
+        style="padding-right:45px;"
+      >
+      <button
+        type="button"
+        class="password-toggle"
+        onclick="togglePassword('password', this)"
+        aria-label="Passwort anzeigen"
+      >👁</button>
+    </div>
 
-<label for="passwordRepeat">
-  Passwort wiederholen <span class="required">*</span>
-</label>
+    <p class="hint">Mindestens 8 Zeichen.</p>
 
-<div style="position:relative;">
-  <input
-    id="passwordRepeat"
-    type="password"
-    minlength="8"
-    required
-    autocomplete="new-password"
-    style="padding-right:45px;"
-  >
-  <button
-    type="button"
-    class="password-toggle"
-    onclick="togglePassword('passwordRepeat', this)"
-    aria-label="Passwort anzeigen"
-  >👁</button>
-</div>
+    <label for="passwordRepeat">
+      Passwort wiederholen <span class="required">*</span>
+    </label>
+
+    <div style="position:relative;">
+      <input
+        id="passwordRepeat"
+        type="password"
+        minlength="8"
+        required
+        autocomplete="new-password"
+        style="padding-right:45px;"
+      >
+      <button
+        type="button"
+        class="password-toggle"
+        onclick="togglePassword('passwordRepeat', this)"
+        aria-label="Passwort anzeigen"
+      >👁</button>
+    </div>
 
     <a href="datenschutz.html"
        class="privacy-link"
@@ -336,13 +342,13 @@ a {
       </span>
     </label>
 
-    <button type="submit">
+    <button type="submit" id="submitButton">
       Kundenkonto erstellen
     </button>
 
   </form>
 
-  <p id="message"></p>
+  <p id="message" role="status" aria-live="polite"></p>
 
   <p class="login-link">
     Sie haben bereits ein Konto?
@@ -360,7 +366,10 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
- 
+
+
+// Passwort anzeigen und verbergen
+
 function togglePassword(fieldId, button) {
   const field = document.getElementById(fieldId);
 
@@ -414,6 +423,7 @@ postalCodeInput.addEventListener("input", async function() {
 
 });
 
+
 // Kundenregistrierung
 
 document.getElementById("registrationForm")
@@ -421,17 +431,19 @@ document.getElementById("registrationForm")
 
   event.preventDefault();
 
+  const form = document.getElementById("registrationForm");
   const message = document.getElementById("message");
+  const submitButton = document.getElementById("submitButton");
 
   const firstName = document.getElementById("firstName").value.trim();
   const lastName = document.getElementById("lastName").value.trim();
-  const email = document.getElementById("email").value.trim();
+  const email = document.getElementById("email").value.trim().toLowerCase();
   const phone = document.getElementById("phone").value.trim();
   const street = document.getElementById("street").value.trim();
   const postalCode = document.getElementById("postalCode").value.trim();
   const city = document.getElementById("city").value.trim();
   const birthDate = document.getElementById("birthDate").value;
-const customerRequest = document.getElementById("customerRequest").value.trim();
+  const customerRequest = document.getElementById("customerRequest").value.trim();
   const password = document.getElementById("password").value;
   const passwordRepeat = document.getElementById("passwordRepeat").value;
 
@@ -446,43 +458,74 @@ const customerRequest = document.getElementById("customerRequest").value.trim();
   }
 
   message.textContent = "Registrierung wird durchgeführt ...";
+  submitButton.disabled = true;
+  submitButton.textContent = "Bitte warten ...";
 
-  
-  const { data, error } = await supabaseClient.auth.signUp({
-    email: email,
-    password: password,
-    options: {
-      data: {
-        account_type: "customer",
-        first_name: firstName,
-        last_name: lastName,
-        phone: phone || null,
-        street: street,
-        postal_code: postalCode,
-        city: city,
-birth_date: birthDate || null,
-customer_request: customerRequest
+  try {
+
+    const { data, error } = await supabaseClient.auth.signUp({
+      email: email,
+      password: password,
+      options: {
+        data: {
+          account_type: "customer",
+          first_name: firstName,
+          last_name: lastName,
+          phone: phone || null,
+          street: street,
+          postal_code: postalCode,
+          city: city,
+          birth_date: birthDate || null,
+          customer_request: customerRequest
+        }
       }
+    });
+
+    if (error) {
+      message.textContent =
+        "Registrierung fehlgeschlagen: " + error.message;
+      return;
     }
-  });
 
-  if (error) {
+    if (!data.user) {
+      message.textContent =
+        "Es konnte kein Benutzerkonto erstellt werden.";
+      return;
+    }
+
+    // Bereits vorhandene E-Mail-Adresse erkennen
+
+    if (
+      Array.isArray(data.user.identities) &&
+      data.user.identities.length === 0
+    ) {
+      message.textContent =
+        "Für diese E-Mail-Adresse besteht bereits ein Kundenkonto. Bitte melden Sie sich an oder nutzen Sie die Funktion „Passwort vergessen“. Eine neue Bestätigungsmail wurde nicht versendet.";
+      return;
+    }
+
     message.textContent =
-      "Registrierung fehlgeschlagen: " + error.message;
-    return;
+      "Registrierung erfolgreich! Bitte bestätigen Sie Ihre E-Mail-Adresse über den Link in Ihrem Postfach. Falls die Nachricht nicht ankommt, prüfen Sie bitte auch Ihren Spam-Ordner.";
+
+    form.reset();
+
+    citySuggestions.innerHTML = "";
+
+  } catch (error) {
+
+    console.error("Registrierungsfehler:", error);
+
+    message.textContent =
+      "Die Registrierung konnte wegen eines Verbindungsfehlers nicht abgeschlossen werden. Bitte versuchen Sie es später erneut.";
+
+  } finally {
+
+    submitButton.disabled = false;
+    submitButton.textContent = "Kundenkonto erstellen";
+
   }
 
-  if (!data.user) {
-    message.textContent =
-      "Es konnte kein Benutzerkonto erstellt werden.";
-    return;
-  }
-
-  message.textContent =
-    "Registrierung erfolgreich! Bitte bestätigen Sie Ihre E-Mail-Adresse über den Link in Ihrem Postfach. Anschließend können Sie sich mit Ihren Zugangsdaten anmelden.";
-
-  document.getElementById("registrationForm").reset();
-  });
+});
 </script>
 
 </body>
