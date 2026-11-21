@@ -419,7 +419,7 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
     return;
   }
 
-  if (customer && customer.status === "approved") {
+  if (customer && customer.status === "active") {
     message.textContent = "Kunden-Anmeldung erfolgreich.";
     window.location.href = "customer.html";
     return;
