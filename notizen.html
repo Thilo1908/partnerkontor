@@ -1,0 +1,434 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PARTNERKONTOR – Meine Notizen</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background: #f1f4f8;
+  color: #26364a;
+}
+
+.container {
+  max-width: 850px;
+  margin: auto;
+  background: white;
+  padding: 22px;
+  border-radius: 12px;
+  box-shadow: 0 3px 15px #00000012;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+h2 { margin: 0; }
+
+button {
+  border: 0;
+  border-radius: 6px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.primary {
+  background: #173653;
+  color: white;
+}
+
+.secondary {
+  background: #e8edf2;
+  color: #26364a;
+}
+
+.danger {
+  background: #fbe5e5;
+  color: #a32626;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccd4dd;
+  border-radius: 6px;
+  margin: 7px 0 14px;
+  font: inherit;
+}
+
+textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.editor {
+  display: none;
+  background: #f7f9fb;
+  border: 1px solid #dce3ea;
+  border-radius: 9px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.editor.open { display: block; }
+
+.options {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin: 5px 0 15px;
+}
+
+.options label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.options input {
+  width: auto;
+  margin: 0;
+}
+
+.note {
+  border: 1px solid #dce3ea;
+  border-left: 5px solid #c49a43;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 12px 0;
+  background: white;
+}
+
+.note.done {
+  border-left-color: #39966b;
+  opacity: .75;
+}
+
+.note h3 {
+  margin: 0 0 9px;
+  overflow-wrap: anywhere;
+}
+
+.note p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 8px 0 14px;
+}
+
+.note-meta {
+  color: #687789;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.actions {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.actions button {
+  font-size: 12px;
+  padding: 8px 10px;
+}
+
+.status {
+  margin: 12px 0;
+  font-size: 14px;
+}
+
+.hidden { display: none; }
+
+@media(max-width: 500px) {
+  body { padding: 10px; }
+  .container { padding: 15px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container" id="app" style="display:none">
+
+  <div class="header">
+    <h2>Meine Notizen</h2>
+    <button class="primary" id="newNote">+ Notiz hinzufügen</button>
+  </div>
+
+  <div class="editor" id="editor">
+    <h3 id="editorTitle">Neue Notiz</h3>
+
+    <label for="noteTitle">Titel</label>
+    <input id="noteTitle" placeholder="Worum geht es?">
+
+    <label for="noteContent">Notiz</label>
+    <textarea id="noteContent" placeholder="Deine Notiz hier eingeben ..."></textarea>
+
+    <div class="options">
+      <label><input type="checkbox" id="noteImportant"> Wichtig</label>
+      <label><input type="checkbox" id="noteLater"> Später</label>
+    </div>
+
+    <button class="primary" id="saveNote">Notiz speichern</button>
+    <button class="secondary" id="cancelNote">Abbrechen</button>
+  </div>
+
+  <div class="status" id="status"></div>
+  <div id="notesList"></div>
+
+</div>
+
+<div id="accessMessage" style="text-align:center;padding:40px">
+  Zugang wird geprüft ...
+</div>
+
+<script>
+const SUPABASE_URL = "https://gzcsqwnkusvbngljqxbd.supabase.co";
+const SUPABASE_KEY = "sb_publishable_XK17n0IGaBcn6xVb0taypg_idMgx67I";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let editingId = null;
+
+const app = document.getElementById("app");
+const statusBox = document.getElementById("status");
+const editor = document.getElementById("editor");
+const notesList = document.getElementById("notesList");
+
+function meldung(text) {
+  statusBox.textContent = text;
+}
+
+function editorOeffnen(note = null) {
+  editingId = note ? note.id : null;
+
+  document.getElementById("editorTitle").textContent =
+    note ? "Notiz bearbeiten" : "Neue Notiz";
+
+  document.getElementById("noteTitle").value =
+    note ? note.title : "";
+
+  document.getElementById("noteContent").value =
+    note ? note.content : "";
+
+  document.getElementById("noteImportant").checked =
+    note ? note.is_important : false;
+
+  document.getElementById("noteLater").checked =
+    note ? note.is_later : false;
+
+  editor.classList.add("open");
+  document.getElementById("noteTitle").focus();
+}
+
+function editorSchliessen() {
+  editor.classList.remove("open");
+  editingId = null;
+}
+
+async function ladeNotizen() {
+  meldung("Notizen werden geladen ...");
+
+  const { data, error } = await supabaseClient
+    .from("admin_private_notes")
+    .select("*")
+    .order("is_done", { ascending: true })
+    .order("is_important", { ascending: false })
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    meldung("Fehler beim Laden: " + error.message);
+    return;
+  }
+
+  notesList.innerHTML = "";
+
+  if (!data || data.length === 0) {
+    notesList.textContent = "Du hast noch keine Notizen angelegt.";
+    meldung("");
+    return;
+  }
+
+  data.forEach(note => {
+    const card = document.createElement("div");
+    card.className = "note" + (note.is_done ? " done" : "");
+
+    const title = document.createElement("h3");
+    title.textContent = note.title || "Ohne Titel";
+
+    const content = document.createElement("p");
+    content.textContent = note.content || "";
+
+    const meta = document.createElement("div");
+    meta.className = "note-meta";
+
+    const labels = [];
+    labels.push(note.is_done ? "Erledigt" : "Offen");
+    if (note.is_important) labels.push("Wichtig");
+    if (note.is_later) labels.push("Später");
+    meta.textContent = labels.join(" · ");
+
+    const actions = document.createElement("div");
+    actions.className = "actions";
+
+    const doneButton = document.createElement("button");
+    doneButton.className = "secondary";
+    doneButton.textContent = note.is_done
+      ? "Wieder öffnen"
+      : "✓ Erledigt";
+
+    doneButton.addEventListener("click", () =>
+      setzeStatus(note.id, { is_done: !note.is_done })
+    );
+
+    const editButton = document.createElement("button");
+    editButton.className = "secondary";
+    editButton.textContent = "Bearbeiten";
+    editButton.addEventListener("click", () =>
+      editorOeffnen(note)
+    );
+
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "danger";
+    deleteButton.textContent = "Löschen";
+    deleteButton.addEventListener("click", () =>
+      loescheNotiz(note.id)
+    );
+
+    actions.append(doneButton, editButton, deleteButton);
+    card.append(title, meta, content, actions);
+    notesList.appendChild(card);
+  });
+
+  meldung("");
+}
+
+async function speichereNotiz() {
+  const title = document.getElementById("noteTitle").value.trim();
+  const content = document.getElementById("noteContent").value.trim();
+
+  if (!title && !content) {
+    meldung("Bitte gib einen Titel oder einen Notiztext ein.");
+    return;
+  }
+
+  const note = {
+    title,
+    content,
+    is_important: document.getElementById("noteImportant").checked,
+    is_later: document.getElementById("noteLater").checked,
+    updated_at: new Date().toISOString()
+  };
+
+  let result;
+
+  if (editingId) {
+    result = await supabaseClient
+      .from("admin_private_notes")
+      .update(note)
+      .eq("id", editingId);
+  } else {
+    result = await supabaseClient
+      .from("admin_private_notes")
+      .insert(note);
+  }
+
+  if (result.error) {
+    meldung("Speichern fehlgeschlagen: " + result.error.message);
+    return;
+  }
+
+  editorSchliessen();
+  await ladeNotizen();
+  meldung("Notiz wurde gespeichert.");
+}
+
+async function setzeStatus(id, values) {
+  const { error } = await supabaseClient
+    .from("admin_private_notes")
+    .update({
+      ...values,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", id);
+
+  if (error) {
+    meldung("Fehler: " + error.message);
+    return;
+  }
+
+  await ladeNotizen();
+}
+
+async function loescheNotiz(id) {
+  if (!confirm("Möchtest du diese Notiz wirklich löschen?")) return;
+
+  const { error } = await supabaseClient
+    .from("admin_private_notes")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    meldung("Löschen fehlgeschlagen: " + error.message);
+    return;
+  }
+
+  await ladeNotizen();
+  meldung("Notiz wurde gelöscht.");
+}
+
+document.getElementById("newNote").addEventListener("click", () =>
+  editorOeffnen()
+);
+
+document.getElementById("saveNote").addEventListener("click", speichereNotiz);
+document.getElementById("cancelNote").addEventListener("click", editorSchliessen);
+
+async function pruefeZugang() {
+  const { data: sessionData, error: sessionError } =
+    await supabaseClient.auth.getSession();
+
+  if (sessionError || !sessionData.session) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const { data: isAdmin, error } =
+    await supabaseClient.rpc("is_app_admin");
+
+  if (error || isAdmin !== true) {
+    document.getElementById("accessMessage").textContent =
+      "Zugriff verweigert. Nur Administratoren dürfen diese Seite öffnen.";
+
+    await supabaseClient.auth.signOut();
+    return;
+  }
+
+  document.getElementById("accessMessage").style.display = "none";
+  app.style.display = "block";
+
+  await ladeNotizen();
+}
+
+pruefeZugang();
+</script>
+
+</body>
+</html>
