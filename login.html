@@ -203,44 +203,48 @@ footer {
 
   <form id="passwordSetupForm">
 
-    
-<label for="newPassword">Neues Passwort</label>
-<div style="position:relative; width:100%;">
-  <input
-    type="password"
-    id="newPassword"
-    autocomplete="new-password"
-    minlength="8"
-    required
-    placeholder="Mindestens 8 Zeichen"
-    style="width:100%; padding-right:45px;"
-  >
-  <button
-    type="button"
-    onclick="toggleSetupPassword('newPassword', this)"
-    aria-label="Passwort anzeigen"
-    style="position:absolute; right:8px; top:50%; transform:translateY(-50%); border:0; background:transparent; cursor:pointer; font-size:20px;"
-  >&#128065;</button>
-</div>
+    <label for="newPassword">Neues Passwort</label>
 
-<label for="confirmPassword">Passwort wiederholen</label>
-<div style="position:relative; width:100%;">
-  <input
-    type="password"
-    id="confirmPassword"
-    autocomplete="new-password"
-    minlength="8"
-    required
-    placeholder="Passwort erneut eingeben"
-    style="width:100%; padding-right:45px;"
-  >
-  <button
-    type="button"
-    onclick="toggleSetupPassword('confirmPassword', this)"
-    aria-label="Passwort anzeigen"
-    style="position:absolute; right:8px; top:50%; transform:translateY(-50%); border:0; background:transparent; cursor:pointer; font-size:20px;"
-  >&#128065;</button>
-</div>
+    <div class="password-field">
+      <input
+        type="password"
+        id="newPassword"
+        autocomplete="new-password"
+        minlength="8"
+        required
+        placeholder="Mindestens 8 Zeichen"
+      >
+      <button
+        type="button"
+        class="password-toggle"
+        onclick="toggleSetupPassword('newPassword', this)"
+        aria-label="Passwort anzeigen"
+      >&#128065;</button>
+    </div>
+
+    <label for="confirmPassword">Passwort wiederholen</label>
+
+    <div class="password-field">
+      <input
+        type="password"
+        id="confirmPassword"
+        autocomplete="new-password"
+        minlength="8"
+        required
+        placeholder="Passwort erneut eingeben"
+      >
+      <button
+        type="button"
+        class="password-toggle"
+        onclick="toggleSetupPassword('confirmPassword', this)"
+        aria-label="Passwort anzeigen"
+      >&#128065;</button>
+    </div>
+
+    <button type="submit">Passwort speichern</button>
+
+  </form>
+
 </div>
 
 
@@ -253,7 +257,7 @@ footer {
   PARTNERKONTOR – Vertrauen · Verbindung · Zusammenarbeit
 </footer>
 
-function toggleSetupPassword(id, button) {
+<script>function toggleSetupPassword(id, button) {
   const input = document.getElementById(id);
 
   if (input.type === "password") {
@@ -264,7 +268,7 @@ function toggleSetupPassword(id, button) {
     button.setAttribute("aria-label", "Passwort anzeigen");
   }
 }
-
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
