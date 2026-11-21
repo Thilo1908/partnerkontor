@@ -157,6 +157,80 @@ textarea {
   body { padding: 10px; }
   .container { padding: 15px; }
 }
+/* Notizfenster-Steuerung */
+#app {
+  position: fixed;
+  top: 100px;
+  right: 25px;
+  width: 380px;
+  max-width: calc(100vw - 30px);
+  max-height: 80vh;
+  overflow-y: auto;
+  z-index: 99999;
+  margin: 0;
+  padding: 16px;
+  box-shadow: 0 5px 25px #0003;
+}
+
+#noteWindowHeader {
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+#noteWindowHeader:active {
+  cursor: grabbing;
+}
+
+.drag-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.drag-title h2 {
+  margin: 0;
+}
+
+.window-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.window-buttons button {
+  min-width: 38px;
+  font-size: 20px;
+  padding: 5px 10px;
+}
+
+#app.minimized .editor,
+#app.minimized #newNote,
+#app.minimized #notesList,
+#app.minimized #status {
+  display: none !important;
+}
+
+#app.minimized {
+  padding: 12px;
+  width: 220px;
+  max-height: none;
+}
+
+#app.minimized .header {
+  margin: 0;
+}
+
+#app.closed {
+  display: none !important;
+}
+
+@media(max-width: 500px) {
+  #app {
+    right: 10px;
+    top: 80px;
+    width: calc(100vw - 20px);
+  }
+}
 </style>
 </head>
 
@@ -164,10 +238,19 @@ textarea {
 
 <div class="container" id="app" style="display:none">
 
-  <div class="header">
+  <div class="header" id="noteWindowHeader">
+  <div class="drag-title">
+    <span>☰</span>
     <h2>Meine Notizen</h2>
-    <button class="primary" id="newNote">+ Notiz hinzufügen</button>
   </div>
+
+  <div class="window-buttons">
+    <button class="secondary" id="minimizeNote">−</button>
+    <button class="secondary" id="closeNote">×</button>
+  </div>
+</div>
+
+<button class="primary" id="newNote">+ Notiz hinzufügen</button>
 
   <div class="editor" id="editor">
     <h3 id="editorTitle">Neue Notiz</h3>
@@ -428,6 +511,59 @@ async function pruefeZugang() {
 }
 
 pruefeZugang();
+  // Notizfenster verschieben und steuern
+const noteApp = document.getElementById("app");
+const noteHeader = document.getElementById("noteWindowHeader");
+const minimizeNote = document.getElementById("minimizeNote");
+const closeNote = document.getElementById("closeNote");
+
+let noteDragging = false;
+let noteStartX = 0;
+let noteStartY = 0;
+let noteLeft = 0;
+let noteTop = 0;
+
+noteHeader.addEventListener("pointerdown", function(event) {
+  if (event.target.closest("button")) return;
+
+  noteDragging = true;
+  const rect = noteApp.getBoundingClientRect();
+
+  noteStartX = event.clientX;
+  noteStartY = event.clientY;
+  noteLeft = rect.left;
+  noteTop = rect.top;
+
+  noteHeader.setPointerCapture(event.pointerId);
+});
+
+noteHeader.addEventListener("pointermove", function(event) {
+  if (!noteDragging) return;
+
+  noteApp.style.left = (noteLeft + event.clientX - noteStartX) + "px";
+  noteApp.style.top = (noteTop + event.clientY - noteStartY) + "px";
+  noteApp.style.right = "auto";
+});
+
+noteHeader.addEventListener("pointerup", function() {
+  noteDragging = false;
+});
+
+minimizeNote.addEventListener("click", function() {
+  noteApp.classList.toggle("minimized");
+  minimizeNote.textContent =
+    noteApp.classList.contains("minimized") ? "□" : "−";
+});
+
+closeNote.addEventListener("click", function() {
+  noteApp.classList.add("closed");
+});
+
+document.addEventListener("keydown", function(event) {
+  if (event.key === "Escape" && noteApp.classList.contains("closed")) {
+    noteApp.classList.remove("closed");
+  }
+});
 </script>
 
 </body>
