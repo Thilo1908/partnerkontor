@@ -1,0 +1,413 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PARTNERKONTOR – Mein Notizbuch</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f3f5f8;
+  color: #263445;
+}
+
+header {
+  background: #172b46;
+  color: white;
+  padding: 22px 20px;
+}
+
+.header-inner {
+  max-width: 900px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 23px;
+}
+
+header p {
+  margin: 6px 0 0;
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.back-button {
+  background: #ffffff;
+  color: #172b46;
+  padding: 10px 15px;
+  border-radius: 7px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+main {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 0 16px;
+}
+
+.panel {
+  background: white;
+  padding: 22px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,.06);
+  margin-bottom: 20px;
+}
+
+h2 {
+  margin: 0 0 16px;
+  font-size: 19px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 15px;
+  resize: vertical;
+}
+
+button {
+  border: none;
+  border-radius: 7px;
+  padding: 11px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.add-button {
+  background: #1d6b53;
+  color: white;
+  margin-top: 12px;
+}
+
+.add-button:hover { background: #155640; }
+
+.stats {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.stat {
+  background: white;
+  border-radius: 9px;
+  padding: 14px 18px;
+  flex: 1;
+  min-width: 120px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.stat strong {
+  display: block;
+  font-size: 23px;
+  margin-bottom: 4px;
+}
+
+.stat span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 16px;
+  border-bottom: 1px solid #e8edf2;
+}
+
+.note:last-child { border-bottom: none; }
+
+.note input {
+  width: 19px;
+  height: 19px;
+  margin-top: 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.note-content {
+  flex: 1;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+
+.note.done .note-content {
+  color: #94a3b8;
+  text-decoration: line-through;
+}
+
+.note-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.note-actions button {
+  padding: 7px 10px;
+  font-size: 12px;
+}
+
+.edit-button {
+  background: #e8eef7;
+  color: #27466b;
+}
+
+.delete-button {
+  background: #feecec;
+  color: #b42318;
+}
+
+.empty {
+  text-align: center;
+  color: #94a3b8;
+  padding: 35px 10px;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.clear-button {
+  background: #f1f3f5;
+  color: #475569;
+  font-size: 12px;
+}
+
+footer {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 12px;
+  padding: 20px;
+}
+
+@media (max-width: 600px) {
+  .note {
+    flex-wrap: wrap;
+  }
+  .note-actions {
+    width: 100%;
+    padding-left: 32px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>PARTNERKONTOR – Mein Notizbuch</h1>
+      <p>Persönliche Notizen und Aufgaben</p>
+    </div>
+    <a class="back-button" href="admin.html">Zur Verwaltung</a>
+  </div>
+</header>
+
+<main>
+
+  <section class="panel">
+    <h2>Neue Notiz schreiben</h2>
+    <form id="noteForm">
+      <textarea id="noteInput"
+        placeholder="Was möchtest du notieren?"></textarea>
+      <button class="add-button" type="submit">
+        + Notiz hinzufügen
+      </button>
+    </form>
+  </section>
+
+  <div class="stats">
+    <div class="stat">
+      <strong id="openCount">0</strong>
+      <span>Offene Notizen</span>
+    </div>
+    <div class="stat">
+      <strong id="doneCount">0</strong>
+      <span>Erledigte Notizen</span>
+    </div>
+    <div class="stat">
+      <strong id="totalCount">0</strong>
+      <span>Notizen insgesamt</span>
+    </div>
+  </div>
+
+  <section class="panel">
+    <div class="list-header">
+      <h2>Meine Notizen</h2>
+      <button class="clear-button" id="clearDone" type="button">
+        Erledigte löschen
+      </button>
+    </div>
+
+    <div id="noteList"></div>
+  </section>
+
+</main>
+
+<footer>
+  PARTNERKONTOR – Persönlicher Verwaltungsbereich
+</footer>
+
+<script>
+const STORAGE_KEY = "partnerkontor_meine_notizen";
+
+const noteForm = document.getElementById("noteForm");
+const noteInput = document.getElementById("noteInput");
+const noteList = document.getElementById("noteList");
+
+let notes = [];
+
+try {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  notes = saved ? JSON.parse(saved) : [];
+  if (!Array.isArray(notes)) notes = [];
+} catch (error) {
+  notes = [];
+}
+
+function saveNotes() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+}
+
+function renderNotes() {
+  noteList.replaceChildren();
+
+  const open = notes.filter(note => !note.done).length;
+  const done = notes.filter(note => note.done).length;
+
+  document.getElementById("openCount").textContent = open;
+  document.getElementById("doneCount").textContent = done;
+  document.getElementById("totalCount").textContent = notes.length;
+
+  if (notes.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "Dein Notizbuch ist noch leer. Schreibe oben deine erste Notiz.";
+    noteList.appendChild(empty);
+    return;
+  }
+
+  notes.forEach(note => {
+    const item = document.createElement("div");
+    item.className = "note" + (note.done ? " done" : "");
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = !!note.done;
+    checkbox.setAttribute("aria-label", "Notiz als erledigt markieren");
+
+    checkbox.addEventListener("change", () => {
+      note.done = checkbox.checked;
+      saveNotes();
+      renderNotes();
+    });
+
+    const content = document.createElement("div");
+    content.className = "note-content";
+    content.textContent = note.text;
+
+    const actions = document.createElement("div");
+    actions.className = "note-actions";
+
+    const edit = document.createElement("button");
+    edit.type = "button";
+    edit.className = "edit-button";
+    edit.textContent = "Bearbeiten";
+
+    edit.addEventListener("click", () => {
+      const updated = prompt("Notiz bearbeiten:", note.text);
+      if (updated === null) return;
+      if (!updated.trim()) {
+        alert("Die Notiz darf nicht leer sein.");
+        return;
+      }
+      note.text = updated.trim();
+      saveNotes();
+      renderNotes();
+    });
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "delete-button";
+    remove.textContent = "Löschen";
+
+    remove.addEventListener("click", () => {
+      if (!confirm("Möchtest du diese Notiz wirklich löschen?")) return;
+      notes = notes.filter(entry => entry.id !== note.id);
+      saveNotes();
+      renderNotes();
+    });
+
+    actions.append(edit, remove);
+    item.append(checkbox, content, actions);
+    noteList.appendChild(item);
+  });
+}
+
+noteForm.addEventListener("submit", event => {
+  event.preventDefault();
+
+  const text = noteInput.value.trim();
+  if (!text) {
+    alert("Bitte schreibe zuerst eine Notiz.");
+    return;
+  }
+
+  notes.unshift({
+    id: Date.now().toString() + Math.random().toString(16).slice(2),
+    text: text,
+    done: false
+  });
+
+  saveNotes();
+  noteInput.value = "";
+  renderNotes();
+  noteInput.focus();
+});
+
+document.getElementById("clearDone").addEventListener("click", () => {
+  const done = notes.filter(note => note.done).length;
+
+  if (done === 0) {
+    alert("Es gibt keine erledigten Notizen.");
+    return;
+  }
+
+  if (!confirm("Möchtest du alle erledigten Notizen löschen?")) return;
+
+  notes = notes.filter(note => !note.done);
+  saveNotes();
+  renderNotes();
+});
+
+renderNotes();
+</script>
+
+</body>
+</html>
