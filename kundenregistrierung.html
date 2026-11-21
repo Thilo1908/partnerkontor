@@ -134,6 +134,29 @@ button {
 button:hover {
   background: #d5b574;
 }
+  .password-toggle {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: #102943;
+  border: 0;
+  border-radius: 5px;
+  font-size: 21px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-toggle:hover {
+  background: #f1f3f5;
+}
 
 #message {
   margin-top: 18px;
@@ -262,12 +285,7 @@ a {
     autocomplete="new-password"
     style="padding-right:45px;"
   >
-  <button type="button"
-    onclick="togglePassword('password', this)"
-    aria-label="Passwort anzeigen"
-    style="position:absolute;right:5px;top:50%;transform:translateY(-50%);width:38px;margin:0;padding:6px;background:transparent;color:#102943;border:0;cursor:pointer;font-size:19px;">
-    ◉
-  </button>
+ <button
 </div>
     <p class="hint">Mindestens 8 Zeichen.</p>
 
