@@ -98,6 +98,27 @@
       font-weight: 800;
       letter-spacing: 5px;
       margin-bottom: 24px;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .hero-label span,
+    .hero-label small {
+      display: block;
+    }
+
+    .hero-label small {
+      margin-top: 5px;
+      font-size: .65em;
+      line-height: 1.4;
+      letter-spacing: 2px;
+      font-weight: 700;
+    }
+
+    .hero-label:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
     }
 
     .hero h1 {
@@ -340,6 +361,10 @@
         padding: 10px 16px;
       }
 
+      .hero-label small {
+        letter-spacing: 1px;
+      }
+
       .hero h1 {
         letter-spacing: -1px;
       }
@@ -378,7 +403,10 @@
 <main>
 
   <section class="hero" id="start">
-    <div class="hero-label">IHR PARTNER FÜR VIELE MÖGLICHKEITEN</div>
+    <button class="hero-label" type="button" onclick="zeigeUeberUns()">
+      <span>IHR PARTNER FÜR VIELE MÖGLICHKEITEN</span>
+      <small>VERBINDUNGEN SCHAFFEN. CHANCEN NUTZEN.</small>
+    </button>
 
     <h1>Ein Ansprechpartner.<br><span style="color:#efbd59;">Viele Möglichkeiten.</span><br>Starke Partner.</h1>
 
@@ -387,10 +415,6 @@
       Entdecken Sie ein Netzwerk mit vielfältigen Leistungen und neuen Möglichkeiten.
     </p>
 
-    <button class="button about-open-button" type="button" onclick="zeigeUeberUns()">
-      <span>PARTNERKONTOR – Ihr Netzwerk für neue Möglichkeiten</span>
-      <small>VERBINDUNGEN SCHAFFEN. CHANCEN NUTZEN.</small>
-    </button>
     <a class="button" href="#bereiche">Unsere Geschäftsbereiche entdecken</a>
   </section>
 
@@ -548,7 +572,7 @@
 }
 </style>
 
-<section id="ueber-uns" class="pk-about">
+<section id="ueber-uns" class="pk-about" hidden>
 
   <div class="pk-about-header">
     <h2>PARTNERKONTOR</h2>
