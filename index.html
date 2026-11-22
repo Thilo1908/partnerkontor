@@ -368,7 +368,7 @@
 
   <nav>
     <a href="#start">Start</a>
-    <a href="#ueber-uns">Über uns</a>
+    <a href="#ueber-uns" onclick="zeigeUeberUns(event)">Über uns</a>
     <a href="#bereiche">Geschäftsbereiche</a>
     <a href="#kontakt">Kontakt</a>
     <a href="login.html">Login</a>
@@ -387,6 +387,10 @@
       Entdecken Sie ein Netzwerk mit vielfältigen Leistungen und neuen Möglichkeiten.
     </p>
 
+    <button class="button about-open-button" type="button" onclick="zeigeUeberUns()">
+      <span>PARTNERKONTOR – Ihr Netzwerk für neue Möglichkeiten</span>
+      <small>VERBINDUNGEN SCHAFFEN. CHANCEN NUTZEN.</small>
+    </button>
     <a class="button" href="#bereiche">Unsere Geschäftsbereiche entdecken</a>
   </section>
 
@@ -506,6 +510,28 @@
   letter-spacing: 2px;
   margin-top: 25px;
 }
+
+ .about-open-button {
+   border: 0;
+   cursor: pointer;
+   font-family: inherit;
+   text-align: center;
+   line-height: 1.4;
+ }
+ .about-open-button span {
+   display: block;
+   font-weight: 800;
+ }
+ .about-open-button small {
+   display: block;
+   margin-top: 5px;
+   font-size: 10px;
+   letter-spacing: 2px;
+   font-weight: 700;
+ }
+ #ueber-uns[hidden] {
+   display: none !important;
+ }
 
 @media (max-width: 600px) {
   .pk-about-content {
@@ -866,5 +892,15 @@ if (!data || !data.success) {
 
 ladeAnfrageGeschaeftsbereiche();
 </script>
+<script>
+function zeigeUeberUns(event) {
+  if (event) event.preventDefault();
+  const bereich = document.getElementById("ueber-uns");
+  if (!bereich) return;
+  bereich.hidden = false;
+  bereich.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+</script>
+
 </body>
 </html>
