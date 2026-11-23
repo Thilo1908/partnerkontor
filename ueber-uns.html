@@ -858,14 +858,76 @@ body.contact-view footer { margin-top:auto; }
 
 <body class="about-view">
 
-<header>
-  <div class="logo">PARTNER<span>KONTOR</span></div>
 
-  <nav>
-    <a href="index.html">Start</a>
-    <a href="ueber-uns.html">Über uns</a>
-    <a href="geschaeftsbereiche.html">Geschäftsbereiche</a>
-    <a href="kontakt.html">Kontakt</a>
+/* Gemeinsame Navigation exakt wie auf der Login-Seite */
+.pk-shared-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.pk-shared-nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: clamp(12px, 2.1vw, 30px);
+  padding: 8px 0;
+  background: transparent;
+  position: relative;
+  z-index: 5;
+}
+.pk-shared-nav::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 3px;
+  border-radius: 100% 12% 100% 12%;
+  background: linear-gradient(90deg, rgba(196,155,85,0) 0%, #c49b55 18%, #f5d58b 52%, #c49b55 82%, rgba(196,155,85,0) 100%);
+  transform: skewX(-24deg) rotate(-.35deg);
+  transform-origin: center;
+  box-shadow: 0 1px 7px rgba(226,177,83,.45);
+  pointer-events: none;
+}
+.pk-shared-nav a {
+  color: #f2eadb;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 7px 2px;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.pk-shared-nav a:hover,
+.pk-shared-nav a[aria-current="page"] {
+  color: #d9b46e;
+  background: transparent;
+  filter: none;
+  transform: none;
+  box-shadow: none;
+}
+@media (max-width: 760px) {
+  .pk-shared-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .pk-shared-nav {
+    justify-content: flex-start;
+    gap: 8px 16px;
+  }
+}
+
+<header class="pk-shared-header">
+  <div class="logo">PARTNER<span>KONTOR</span></div>
+  <nav class="pk-shared-nav" aria-label="Hauptnavigation">
+    <a href="index.html#start">Start</a>
+    <a href="index.html#ueber-uns" aria-current="page">Über uns</a>
+    <a href="index.html#bereiche">Geschäftsbereiche</a>
+    <a href="index.html#kontakt">Kontakt</a>
     <a href="login.html">Login</a>
   </nav>
 </header>
