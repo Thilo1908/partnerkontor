@@ -2254,5 +2254,212 @@ body.about-view > footer.pk-shared-footer {
 }
 </style>
 
+
+<style id="pk-footer-position-final">
+/* Einheitliche Bildschirmaufteilung für Start, Geschäftsbereiche, Kontakt und Über uns */
+html, body {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+body {
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+body > header.pk-shared-header {
+  flex: 0 0 auto !important;
+}
+body > main {
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  align-items: stretch !important;
+  -webkit-overflow-scrolling: touch;
+}
+body.about-view > main {
+  display: block !important;
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+body > footer.pk-shared-footer,
+body.about-view > footer.pk-shared-footer {
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+  display: block !important;
+  flex: 0 0 auto !important;
+  align-self: stretch !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 10px 18px 12px !important;
+  line-height: normal !important;
+  font-size: inherit !important;
+  z-index: 100 !important;
+}
+@media (max-width: 600px) {
+  body > footer.pk-shared-footer,
+  body.about-view > footer.pk-shared-footer {
+    padding: 7px 14px !important;
+  }
+}
+</style>
+
+
+<style id="pk-footer-slim">
+/* Fußzeile dezenter und flacher – Position und Breite bleiben unverändert */
+body > footer.pk-shared-footer,
+body.about-view > footer.pk-shared-footer {
+  padding: 5px 14px 6px !important;
+}
+body > footer.pk-shared-footer .pk-footer-row,
+body.about-view > footer.pk-shared-footer .pk-footer-row {
+  gap: 12px !important;
+  min-height: 0 !important;
+  line-height: 1.2 !important;
+}
+body > footer.pk-shared-footer .pk-footer-logo,
+body.about-view > footer.pk-shared-footer .pk-footer-logo {
+  font-size: 14px !important;
+  letter-spacing: 1.5px !important;
+  padding-bottom: 0 !important;
+  line-height: 1.2 !important;
+}
+body > footer.pk-shared-footer .pk-footer-tagline,
+body > footer.pk-shared-footer .pk-footer-status,
+body > footer.pk-shared-footer .pk-footer-links,
+body.about-view > footer.pk-shared-footer .pk-footer-tagline,
+body.about-view > footer.pk-shared-footer .pk-footer-status,
+body.about-view > footer.pk-shared-footer .pk-footer-links {
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+}
+@media (max-width: 600px) {
+  body > footer.pk-shared-footer,
+  body.about-view > footer.pk-shared-footer {
+    padding: 4px 10px 5px !important;
+  }
+  body > footer.pk-shared-footer .pk-footer-row,
+  body.about-view > footer.pk-shared-footer .pk-footer-row {
+    gap: 7px 10px !important;
+  }
+  body > footer.pk-shared-footer .pk-footer-logo,
+  body.about-view > footer.pk-shared-footer .pk-footer-logo {
+    font-size: 13px !important;
+  }
+  body > footer.pk-shared-footer .pk-footer-tagline,
+  body > footer.pk-shared-footer .pk-footer-status,
+  body > footer.pk-shared-footer .pk-footer-links,
+  body.about-view > footer.pk-shared-footer .pk-footer-tagline,
+  body.about-view > footer.pk-shared-footer .pk-footer-status,
+  body.about-view > footer.pk-shared-footer .pk-footer-links {
+    font-size: 11px !important;
+  }
+}
+</style>
+
+
+<style id="pk-mobile-footer-bottom">
+/* Nur auf Handys: gesamte Seite normal scrollen, Fußzeile ganz ans Seitenende setzen.
+   Desktop-Regeln bleiben unverändert. */
+@media (max-width: 600px) {
+  html, body {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+  body {
+    min-height: 100vh !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: visible !important;
+  }
+  body > main {
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+  body > footer.pk-shared-footer {
+    position: relative !important;
+    inset: auto !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 10px 10px max(12px, env(safe-area-inset-bottom)) !important;
+    background: linear-gradient(180deg, rgba(5,20,39,.96), rgba(3,15,30,.99)) !important;
+    border-top: 1px solid rgba(217,180,110,.42) !important;
+    box-shadow: 0 -4px 14px rgba(0,0,0,.12) !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+  body > footer.pk-shared-footer .pk-footer-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    width: 100% !important;
+    text-align: center !important;
+  }
+  body > footer.pk-shared-footer .pk-footer-logo {
+    font-size: 15px !important;
+    letter-spacing: 1.4px !important;
+    line-height: 1.2 !important;
+    padding-bottom: 3px !important;
+  }
+  body > footer.pk-shared-footer .pk-footer-tagline {
+    display: block !important;
+    max-width: 330px !important;
+    margin: 0 auto !important;
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+    white-space: normal !important;
+    color: #d5d0c7 !important;
+  }
+  body > footer.pk-shared-footer .pk-footer-status {
+    position: static !important;
+    transform: none !important;
+    margin: 0 !important;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+    color: #aaa69e !important;
+  }
+  body > footer.pk-shared-footer .pk-footer-links {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 18px !important;
+    margin: 2px 0 0 !important;
+    white-space: normal !important;
+  }
+  body > footer.pk-shared-footer .pk-footer-links a {
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+    color: #d9b46e !important;
+  }
+}
+</style>
 </body>
 </html>
