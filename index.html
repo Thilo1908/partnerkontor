@@ -1963,14 +1963,7 @@ body > section#bereiche {
 </div>
 </div>
 </section>
-</main><footer class="pk-shared-footer">
-<div class="pk-footer-row">
-<div class="pk-footer-logo">PARTNER<span>KONTOR</span></div>
-<div class="pk-footer-tagline">Ein Ansprechpartner. Viele Möglichkeiten. Starke Partner.</div>
-<p class="pk-footer-status">Website im Aufbau</p>
-<div class="pk-footer-links"><a href="datenschutz.html">Datenschutz</a><a href="impressum.html">Impressum</a></div>
-</div>
-</footer><section id="bereiche">
+<section id="bereiche">
 <div class="intro">
 <div class="section-label">Unser Netzwerk</div>
 <h2>Unsere Geschäftsbereiche</h2>
@@ -2034,7 +2027,14 @@ body > section#bereiche {
 </div>
 </div>
 </div>
-</section>
+</section></main><footer class="pk-shared-footer">
+<div class="pk-footer-row">
+<div class="pk-footer-logo">PARTNER<span>KONTOR</span></div>
+<div class="pk-footer-tagline">Ein Ansprechpartner. Viele Möglichkeiten. Starke Partner.</div>
+<p class="pk-footer-status">Website im Aufbau</p>
+<div class="pk-footer-links"><a href="datenschutz.html">Datenschutz</a><a href="impressum.html">Impressum</a></div>
+</div>
+</footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = "https://gzcsqwnkusvbngljqxbd.supabase.co";
@@ -2134,5 +2134,125 @@ document.addEventListener("click", function (event) {
 });
 
 </script>
+
+<style id="pk-fixed-header-footer-scroll">
+html, body {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+body {
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+body > header.pk-shared-header {
+  position: relative !important;
+  top: auto !important;
+  flex: 0 0 auto !important;
+  z-index: 100 !important;
+}
+body > main {
+  display: block !important;
+  position: relative !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  width: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 !important;
+}
+body > footer.pk-shared-footer {
+  position: relative !important;
+  bottom: auto !important;
+  flex: 0 0 auto !important;
+  width: 100% !important;
+  margin-top: 0 !important;
+  z-index: 100 !important;
+}
+body > main > section#bereiche {
+  position: relative !important;
+  width: 100% !important;
+  margin: 18px auto 30px !important;
+}
+@media (max-width: 760px) {
+  body > main {
+    min-height: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  body > footer.pk-shared-footer {
+    padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+  }
+}
+</style>
+
+
+<style id="pk-unified-page-layout">
+/* Einheitlicher Hauptbereich und einheitliche gemeinsame Fußzeile auf allen Ansichten */
+body.about-view > main {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  align-items: stretch !important;
+}
+body.about-view > footer.pk-shared-footer {
+  position: relative !important;
+  bottom: auto !important;
+  flex: 0 0 auto !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 10px 18px 12px !important;
+  line-height: normal !important;
+  font-size: inherit !important;
+  box-sizing: border-box !important;
+}
+@media (max-width: 600px) {
+  body.about-view > footer.pk-shared-footer {
+    padding: 7px 14px !important;
+  }
+}
+</style>
+
+
+<style id="pk-footer-width-unified">
+/* Gleiche Außenbreite der Fußzeile in jeder Ansicht */
+html, body {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  overflow-x: hidden !important;
+}
+body > footer.pk-shared-footer {
+  display: block !important;
+  align-self: stretch !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+}
+body.about-view > footer.pk-shared-footer {
+  width: 100% !important;
+  max-width: 100% !important;
+  align-self: stretch !important;
+  box-sizing: border-box !important;
+}
+</style>
+
 </body>
 </html>
