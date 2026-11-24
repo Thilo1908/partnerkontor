@@ -1103,10 +1103,93 @@ input[type="button"]:focus-visible,
   margin-bottom: 0;
 }
 
-</style></head>
+</style>
+<style>
+/* Mobile Kopfbereich: kompaktes, aufklappbares Menü */
+.pk-mobile-menu-toggle {
+  display: none;
+}
+@media (max-width: 760px) {
+  body > header.pk-shared-header {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px 12px !important;
+    padding: 12px 5% 14px !important;
+    text-align: left !important;
+  }
+  body > header.pk-shared-header .logo {
+    font-size: clamp(19px, 5.2vw, 23px) !important;
+    letter-spacing: 1px !important;
+    padding-bottom: 7px !important;
+    white-space: nowrap;
+  }
+  body > header.pk-shared-header .pk-mobile-menu-toggle {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: auto !important;
+    min-width: 94px;
+    margin: 0 !important;
+    padding: 9px 13px !important;
+    border: 1px solid #d9b46e !important;
+    border-radius: 8px !important;
+    color: #f5d58b !important;
+    background: rgba(8, 29, 53, .92) !important;
+    font-size: 14px !important;
+    font-weight: 700;
+    line-height: 1.2;
+    cursor: pointer;
+  }
+  body > header.pk-shared-header .pk-shared-nav {
+    display: none !important;
+    flex: 1 0 100% !important;
+    width: 100% !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    padding: 7px 0 3px !important;
+    border-top: 1px solid rgba(217, 180, 110, .35);
+  }
+  body > header.pk-shared-header.pk-menu-open .pk-shared-nav {
+    display: flex !important;
+  }
+  body > header.pk-shared-header .pk-shared-nav a {
+    display: block;
+    width: 100%;
+    padding: 11px 8px !important;
+    border-bottom: 1px solid rgba(217, 180, 110, .18);
+    font-size: 16px !important;
+    text-align: left;
+  }
+  body > header.pk-shared-header .pk-shared-nav::after {
+    display: none;
+  }
+  .hero-label-wrap {
+    padding: 12px 10px 0 !important;
+  }
+  .hero-label-wrap .hero-label {
+    width: 100%;
+    max-width: 520px;
+    padding: 11px 14px !important;
+    font-size: 12px !important;
+    letter-spacing: 2px !important;
+    line-height: 1.35;
+  }
+  .hero-label-wrap .hero-label small {
+    font-size: 10px !important;
+    letter-spacing: 1px !important;
+  }
+}
+</style>
+</head>
 <body><header class="pk-shared-header">
 <div class="logo">PARTNER<span>KONTOR</span></div>
-<nav aria-label="Hauptnavigation" class="pk-shared-nav">
+<button class="pk-mobile-menu-toggle" type="button" aria-controls="pk-hauptnavigation" aria-expanded="false" onclick="togglePkMobileMenu()">Menü ☰</button>
+<nav id="pk-hauptnavigation" aria-label="Hauptnavigation" class="pk-shared-nav">
 <a href="#start" onclick="zeigeStart(event)">Start</a>
 <a href="#ueber-uns" onclick="zeigeUeberUns(event)">Über uns</a>
 <a href="#bereiche" onclick="zeigeGeschaeftsbereiche(event)">Geschäftsbereiche</a>
@@ -2028,6 +2111,28 @@ window.addEventListener("DOMContentLoaded", function () {
   else if (ziel === "#kontakt") zeigeKontakt();
   else zeigeStart();
 });
+
+function togglePkMobileMenu() {
+  const header = document.querySelector("body > header.pk-shared-header");
+  const toggle = document.querySelector(".pk-mobile-menu-toggle");
+  if (!header || !toggle) return;
+  const isOpen = header.classList.toggle("pk-menu-open");
+  toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  toggle.textContent = isOpen ? "Schließen ✕" : "Menü ☰";
+}
+
+document.addEventListener("click", function (event) {
+  const link = event.target.closest(".pk-shared-nav a");
+  if (!link) return;
+  const header = document.querySelector("body > header.pk-shared-header");
+  const toggle = document.querySelector(".pk-mobile-menu-toggle");
+  if (header && toggle && window.matchMedia("(max-width: 760px)").matches) {
+    header.classList.remove("pk-menu-open");
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.textContent = "Menü ☰";
+  }
+});
+
 </script>
 </body>
 </html>
