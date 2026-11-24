@@ -1443,12 +1443,14 @@ body > main > section#pk-start-intro .pk-compact-card {
 </style>
 
 <style id="pk-register-banner-layout">
-/* Breiterer goldener Banner: Registrieren als elegante zweite Zeile rechts */
+/* Banner verbreitern und beide Zeilen sauber innerhalb des Goldfeldes halten */
 .hero-label-wrap .hero-label {
-  width: min(100%, 850px) !important;
-  max-width: 850px !important;
-  box-sizing: border-box;
-  padding: 12px 28px 9px !important;
+  display: block !important;
+  width: min(100%, 980px) !important;
+  max-width: 980px !important;
+  box-sizing: border-box !important;
+  padding: 12px 30px 11px !important;
+  overflow: visible;
   text-align: center !important;
 }
 .hero-label-wrap .hero-label > span:first-child {
@@ -1459,14 +1461,17 @@ body > main > section#pk-start-intro .pk-compact-card {
 .hero-label-wrap .hero-label small {
   display: inline-block;
   width: 68%;
-  margin: 5px 0 0;
+  margin: 6px 0 0;
+  box-sizing: border-box;
   vertical-align: middle;
   text-align: center;
+  white-space: nowrap;
 }
 .hero-label-wrap .hero-label .pk-register-script {
   display: inline-block;
   width: 30%;
   margin: 0;
+  box-sizing: border-box;
   vertical-align: middle;
   color: #fff8e7;
   font-family: "Brush Script MT", "Segoe Script", "URW Chancery L", cursive;
@@ -1474,27 +1479,20 @@ body > main > section#pk-start-intro .pk-compact-card {
   font-style: italic;
   font-weight: 600;
   letter-spacing: 0;
-  line-height: 1;
+  line-height: 1.05;
   text-align: center;
+  white-space: nowrap;
   text-shadow: 0 2px 8px rgba(120, 69, 0, .55);
   transform: rotate(-7deg);
 }
 @media (max-width: 760px) {
   .hero-label-wrap .hero-label {
-    width: 100% !important;
+    width: calc(100% - 24px) !important;
     max-width: 100% !important;
     padding: 10px 12px 9px !important;
-    text-align: center !important;
   }
-  .hero-label-wrap .hero-label small {
-    width: 62%;
-    font-size: 9px !important;
-    letter-spacing: .7px !important;
-  }
-  .hero-label-wrap .hero-label .pk-register-script {
-    width: 35%;
-    font-size: clamp(22px, 6vw, 30px);
-  }
+  .hero-label-wrap .hero-label small { width: 66%; font-size: 9px !important; letter-spacing: .7px !important; }
+  .hero-label-wrap .hero-label .pk-register-script { width: 32%; font-size: clamp(20px, 5vw, 29px); }
 }
 </style>
 
@@ -1585,6 +1583,120 @@ body > main > section.hero#start > p {
   }
 }
 </style>
+
+<style id="pk-register-banner-final-fix">
+/* Registrieren bleibt rechts neben dem Slogan – vollständig innerhalb des Goldbanners. */
+.hero-label-wrap .hero-label {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  grid-template-rows: auto auto !important;
+  align-items: center !important;
+  justify-content: center !important;
+  column-gap: clamp(8px, 2vw, 22px) !important;
+  row-gap: 5px !important;
+  width: min(100%, 1100px) !important;
+  max-width: 1100px !important;
+  box-sizing: border-box !important;
+  padding: 12px 28px 11px !important;
+  overflow: hidden !important;
+  text-align: center !important;
+}
+.hero-label-wrap .hero-label > span:first-child {
+  grid-column: 1 / -1 !important;
+  grid-row: 1 !important;
+  display: block !important;
+  width: 100% !important;
+  text-align: center !important;
+}
+.hero-label-wrap .hero-label small {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+  display: block !important;
+  width: auto !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  text-align: right !important;
+  font-size: clamp(9px, 1.15vw, 13px) !important;
+}
+.hero-label-wrap .hero-label .pk-register-script {
+  position: static !important;
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  display: block !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 3px !important;
+  color: #fff0bd !important;
+  font-family: "Brush Script MT", "Segoe Script", "URW Chancery L", cursive !important;
+  font-size: clamp(25px, 3vw, 40px) !important;
+  font-style: italic !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  transform: rotate(-9deg) !important;
+  text-shadow: 0 2px 8px rgba(120, 69, 0, .55) !important;
+}
+@media (max-width: 760px) {
+  .hero-label-wrap .hero-label {
+    width: calc(100% - 20px) !important;
+    max-width: 100% !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    column-gap: 6px !important;
+    padding: 10px 9px 9px !important;
+  }
+  .hero-label-wrap .hero-label small {
+    font-size: clamp(7px, 2.15vw, 9px) !important;
+    letter-spacing: .35px !important;
+    text-align: center !important;
+  }
+  .hero-label-wrap .hero-label .pk-register-script {
+    font-size: clamp(20px, 5.5vw, 28px) !important;
+  }
+}
+</style>
+
+
+<style id="pk-navigation-sun-indicator">
+.pk-shared-nav a {
+  position: relative;
+  isolation: isolate;
+  border-radius: 999px;
+  transition: color .25s ease, text-shadow .25s ease, box-shadow .25s ease;
+}
+.pk-shared-nav a[aria-current="page"] {
+  color: #ffe2a0 !important;
+  text-shadow: 0 0 7px rgba(255, 211, 123, .95), 0 0 16px rgba(232, 174, 75, .8);
+  box-shadow: 0 0 9px rgba(239, 190, 94, .28), 0 0 22px rgba(239, 190, 94, .2);
+  background: radial-gradient(ellipse at center, rgba(255, 211, 123, .24) 0%, rgba(226, 171, 78, .12) 42%, rgba(226, 171, 78, 0) 76%);
+}
+.pk-shared-nav a[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 239, 190, .55) 0%, rgba(245, 199, 111, .22) 42%, rgba(245, 199, 111, 0) 74%);
+  filter: blur(2px);
+  pointer-events: none;
+}
+</style>
+
+<style id="pk-markenregel-und-sonnennavigation">
+/* Verbindliche PARTNERKONTOR-Schreibweise im Kopfbereich */
+body > header.pk-shared-header .logo { color:#ffffff !important; text-transform:uppercase !important; letter-spacing:1.5px !important; font-weight:800 !important; }
+body > header.pk-shared-header .logo span { color:#e8bd68 !important; }
+/* Aktive Seite: goldene Sonne mit sanftem Lichtschein */
+.pk-shared-nav a[aria-current="page"] { color:#ffe6ad !important; text-shadow:0 0 5px rgba(255,238,190,.95),0 0 13px rgba(255,202,102,.9),0 0 24px rgba(226,171,78,.65) !important; box-shadow:0 0 13px rgba(239,190,94,.28) !important; }
+.pk-shared-nav a[aria-current="page"]::before { content:""; position:absolute; z-index:-1; left:50%; top:50%; width:38px; height:38px; border-radius:50%; transform:translate(-50%,-50%); background:radial-gradient(circle,#fff4c8 0 10%,#ffd979 14% 22%,rgba(255,205,105,.38) 30%,transparent 70%),conic-gradient(from 0deg,transparent 0 7deg,rgba(255,220,145,.72) 8deg 10deg,transparent 11deg 37deg,rgba(255,220,145,.72) 38deg 40deg,transparent 41deg 67deg,rgba(255,220,145,.72) 68deg 70deg,transparent 71deg 97deg,rgba(255,220,145,.72) 98deg 100deg,transparent 101deg 127deg,rgba(255,220,145,.72) 128deg 130deg,transparent 131deg 157deg,rgba(255,220,145,.72) 158deg 160deg,transparent 161deg 187deg,rgba(255,220,145,.72) 188deg 190deg,transparent 191deg 217deg,rgba(255,220,145,.72) 218deg 220deg,transparent 221deg 247deg,rgba(255,220,145,.72) 248deg 250deg,transparent 251deg 277deg,rgba(255,220,145,.72) 278deg 280deg,transparent 281deg 307deg,rgba(255,220,145,.72) 308deg 310deg,transparent 311deg 360deg); filter:blur(.35px); pointer-events:none; }
+@media(max-width:700px){.pk-shared-nav a[aria-current="page"]::before{width:32px;height:32px;}}
+</style>
 </head>
 <body><header class="pk-shared-header">
 <div class="logo">PARTNER<span>KONTOR</span></div>
@@ -1594,7 +1706,7 @@ body > main > section.hero#start > p {
 <a href="#ueber-uns" onclick="zeigeUeberUns(event)">Über uns</a>
 <a href="#bereiche" onclick="zeigeGeschaeftsbereiche(event)">Geschäftsbereiche</a>
 <a href="#kontakt" onclick="zeigeKontakt(event)">Kontakt</a>
-<a aria-current="page" href="login.html">Login</a>
+<a href="login.html">Login</a>
 </nav>
 </header><main><div class="hero-label-wrap">
 <button class="hero-label" onclick="zeigeUeberUns()" type="button">
@@ -2586,8 +2698,17 @@ generalContactForm.addEventListener("submit", function(event) {
 });
 </script>
 <script>
+function pkSetActiveNav(target) {
+  document.querySelectorAll(".pk-shared-nav a").forEach(function (link) {
+    const active = link.getAttribute("href") === target;
+    if (active) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  });
+}
+
 function zeigeUeberUns(event) {
   if (event) event.preventDefault();
+  pkSetActiveNav("#ueber-uns");
   const about = document.getElementById("ueber-uns");
   if (!about) return;
   about.hidden = false;
@@ -2599,6 +2720,7 @@ function zeigeUeberUns(event) {
 
 function zeigeGeschaeftsbereiche(event) {
   if (event) event.preventDefault();
+  pkSetActiveNav("#bereiche");
   const about = document.getElementById("ueber-uns");
   if (about) about.hidden = true;
   document.body.classList.remove("about-view", "contact-view");
@@ -2609,6 +2731,7 @@ function zeigeGeschaeftsbereiche(event) {
 
 function zeigeStart(event) {
   if (event) event.preventDefault();
+  pkSetActiveNav("#start");
   const about = document.getElementById("ueber-uns");
   if (about) about.hidden = true;
   document.body.classList.remove("about-view", "business-view", "contact-view");
@@ -2618,6 +2741,7 @@ function zeigeStart(event) {
 
 function zeigeKontakt(event) {
   if (event) event.preventDefault();
+  pkSetActiveNav("#kontakt");
   const about = document.getElementById("ueber-uns");
   if (about) about.hidden = true;
   document.body.classList.remove("about-view", "business-view");
