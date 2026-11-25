@@ -1684,7 +1684,8 @@ body > main > section.hero#start > p {
   transform: translate(-50%, -50%);
   background: radial-gradient(circle, rgba(255, 239, 190, .55) 0%, rgba(245, 199, 111, .22) 42%, rgba(245, 199, 111, 0) 74%);
   filter: blur(2px);
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
 }
 </style>
 
@@ -1709,11 +1710,11 @@ body > header.pk-shared-header .logo span { color:#e8bd68 !important; }
 <a href="login.html">Login</a>
 </nav>
 </header><main><div class="hero-label-wrap">
-<button class="hero-label" onclick="zeigeUeberUns()" type="button">
+<div class="hero-label" onclick="zeigeUeberUns()">
 <span>DIE PLATTFORM DER OFFENEN MÖGLICHKEITEN</span>
 <small>VERBINDUNGEN SCHAFFEN. CHANCEN NUTZEN.</small>
-<span class="pk-register-script" aria-hidden="true">Registrieren</span>
-</button>
+<a class="pk-register-script" href="kundenregistrierung.html" onclick="event.stopPropagation()">Registrieren</a>
+</div>
 </div>
 <section class="hero" id="start">
 
@@ -3418,6 +3419,41 @@ body {
 }
 </style>
 
+
+
+<style id="pk-mobile-footer-at-page-end">
+/* Auf dem Handy scrollt die ganze Seite; die Fußzeile steht erst am Seitenende. */
+@media (max-width: 760px) {
+  html, body {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+  body {
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: visible !important;
+  }
+  body > main {
+    flex: 1 0 auto !important;
+    min-height: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    overscroll-behavior-y: auto !important;
+    -webkit-overflow-scrolling: auto !important;
+  }
+  body > footer.pk-shared-footer {
+    position: relative !important;
+    flex: 0 0 auto !important;
+    margin-top: auto !important;
+  }
+}
+</style>
+
 </body>
 </html>
 
@@ -3826,7 +3862,8 @@ body > main > section#pk-start-intro .pk-compact-grid.pk-info-more {
   letter-spacing: .3px;
   line-height: 1;
   text-shadow: 0 0 7px rgba(242,189,85,.45), 0 2px 8px rgba(0,0,0,.8);
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
 }
 @media (max-width: 760px) {
   .hero-label-wrap .hero-label .pk-register-script {
