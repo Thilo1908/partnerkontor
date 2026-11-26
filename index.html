@@ -2052,6 +2052,46 @@ body.business-view #bereiche .business-side-list .card p {
 }
 </style>
 
+
+<style id="pk-mobile-register-banner-refinement">
+/* Nur der goldene Registrieren-Banner auf Mobilgeräten: ruhiger, kompakter und klarer. */
+@media (max-width: 760px) {
+  .hero-label-wrap .hero-label {
+    min-height: 164px !important;
+    padding: 17px 138px 17px 20px !important;
+    border-radius: 32px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .hero-label-wrap .hero-label > span:first-child {
+    font-size: clamp(17px, 4.7vw, 23px) !important;
+    line-height: 1.28 !important;
+    letter-spacing: 1.8px !important;
+  }
+
+  .hero-label-wrap .hero-label small {
+    margin-top: 10px !important;
+    font-size: 10px !important;
+    line-height: 1.35 !important;
+    letter-spacing: .45px !important;
+  }
+
+  .hero-label-wrap .hero-label .pk-register-script {
+    right: 13px !important;
+    top: auto !important;
+    bottom: 16px !important;
+    width: 118px !important;
+    max-width: 118px !important;
+    font-size: clamp(22px, 5.8vw, 28px) !important;
+    line-height: 1.05 !important;
+    text-align: center !important;
+    transform: rotate(-6deg) !important;
+    text-shadow: 0 1px 2px rgba(120,69,0,.22) !important;
+  }
+}
+</style>
+
 </head>
 <body><header class="pk-shared-header">
 <div class="logo">PARTNER<span>KONTOR</span></div>
