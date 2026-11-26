@@ -1945,6 +1945,113 @@ body > header.pk-shared-header .logo span { color:#e8bd68 !important; }
   outline: none;
 }
 </style>
+
+<style id="pk-geschaeftsbereiche-muster">
+/* MUSTER: einheitliche Kachelhöhen und saubere Textausrichtung.
+   Gilt ausschließlich für den Geschäftsbereiche-Hauptbereich. */
+body.business-view #bereiche .business-content-row {
+  gap: 18px !important;
+  align-items: start !important;
+}
+body.business-view #bereiche .business-left-under-grid,
+body.business-view #bereiche .business-side-list {
+  grid-auto-rows: 1fr !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+}
+body.business-view #bereiche .business-left-under-grid .card,
+body.business-view #bereiche .business-side-list .card {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 220px !important;
+  padding: 12px !important;
+  border: 1px solid rgba(226,177,83,.42) !important;
+  border-radius: 13px !important;
+}
+body.business-view #bereiche .business-left-under-grid .business-card-visual,
+body.business-view #bereiche .business-side-list .business-card-visual {
+  flex: 0 0 88px !important;
+  height: 88px !important;
+  margin: -12px -12px 11px !important;
+  border-radius: 12px 12px 0 0 !important;
+}
+body.business-view #bereiche .business-left-under-grid .card h3,
+body.business-view #bereiche .business-side-list .card h3 {
+  min-height: 2.4em !important;
+  margin: 0 0 7px !important;
+  line-height: 1.2 !important;
+}
+body.business-view #bereiche .business-left-under-grid .card p,
+body.business-view #bereiche .business-side-list .card p {
+  flex: 1 1 auto !important;
+  margin: 0 !important;
+  line-height: 1.45 !important;
+}
+@media (max-width: 700px) {
+  body.business-view #bereiche .business-left-under-grid .card,
+  body.business-view #bereiche .business-side-list .card {
+    min-height: 205px !important;
+    padding: 9px !important;
+  }
+  body.business-view #bereiche .business-left-under-grid .business-card-visual,
+  body.business-view #bereiche .business-side-list .business-card-visual {
+    flex-basis: 72px !important;
+    height: 72px !important;
+    margin: -9px -9px 9px !important;
+  }
+}
+</style>
+
+
+<style id="pk-registration-tile-visual-sample">
+/* Muster: nur die beiden Auswahlkacheln im Fenster
+   „Wie möchten Sie sich registrieren?“ optisch vereinheitlichen. */
+#pk-registration-modal .choices {
+  align-items: stretch !important;
+  gap: 20px !important;
+}
+#pk-registration-modal .choice {
+  min-height: 270px !important;
+  padding: 25px 20px 20px !important;
+  border-color: rgba(225,184,98,.58) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.065), rgba(255,255,255,.025)) !important;
+  box-shadow: inset 0 0 18px rgba(225,184,98,.035) !important;
+  box-sizing: border-box !important;
+}
+#pk-registration-modal .choice h2 {
+  min-height: 2.5em !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1.25 !important;
+  text-align: center !important;
+}
+#pk-registration-modal .choice p {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  margin-bottom: 20px !important;
+  line-height: 1.55 !important;
+  text-align: center !important;
+}
+#pk-registration-modal .choice .gold-button {
+  margin-top: auto !important;
+  min-height: 52px !important;
+  letter-spacing: .15px !important;
+}
+@media (max-width: 600px) {
+  #pk-registration-modal .choices {
+    gap: 12px !important;
+  }
+  #pk-registration-modal .choice {
+    min-height: 0 !important;
+    padding: 19px 15px 16px !important;
+  }
+  #pk-registration-modal .choice h2 {
+    min-height: 0 !important;
+  }
+}
+</style>
+
 </head>
 <body><header class="pk-shared-header">
 <div class="logo">PARTNER<span>KONTOR</span></div>
@@ -2101,7 +2208,7 @@ body > header.pk-shared-header .logo span { color:#e8bd68 !important; }
   isolation: isolate;
   overflow: hidden;
   max-width: 1240px;
-  margin: 210px auto 14px;
+  margin: 28px auto 14px;
   padding: 18px 24px 14px;
   border: 2px solid #e8b64f;
   border-radius: 24px;
@@ -3830,19 +3937,19 @@ body.pk-registration-open #pk-registration-modal {
 </style>
 <div id="pk-registration-modal" hidden aria-hidden="true">
   <main class="registration-card" role="dialog" aria-modal="true" aria-labelledby="pk-registration-title">
-    <h1 id="pk-registration-title">Wie möchtest du dich registrieren?</h1>
-    <p class="intro">Wähle den passenden Registrierungsweg bei
+    <h1 id="pk-registration-title">Wie möchten Sie sich registrieren?</h1>
+    <p class="intro">Wählen Sie den passenden Registrierungsweg bei
       <span class="pk-brand-inline">PARTNER<span>KONTOR</span></span>.
     </p>
     <div class="choices">
       <section class="choice">
         <h2>KUNDENREGISTRIERUNG</h2>
-        <p>Du suchst einen passenden Anbieter oder möchtest eine Anfrage stellen? Registrieren Sie sich für Ihren persönlichen Zugang.</p>
+        <p>Suchen Sie einen passenden Anbieter oder möchten Sie eine Anfrage stellen? Registrieren Sie sich für Ihren persönlichen Zugang.</p>
         <a class="gold-button" href="kundenregistrierung.html">Kundenkonto erstellen</a>
       </section>
       <section class="choice">
         <h2>Partnerregistrierung</h2>
-        <p>Du möchtest dein Unternehmen vorstellen und Partner bei <span class="pk-brand-inline">PARTNER<span>KONTOR</span></span> werden? Stellen Sie Ihr Unternehmen vor und wählen Sie Ihre Branchen und Leistungen aus.</p>
+        <p>Möchten Sie Ihr Unternehmen vorstellen und Partner bei <span class="pk-brand-inline">PARTNER<span>KONTOR</span></span> werden? Stellen Sie Ihr Unternehmen vor und wählen Sie Ihre Branchen und Leistungen aus.</p>
         <a class="gold-button" href="partnerbewerbung.html">Partnerkonto erstellen</a>
       </section>
     </div>
@@ -4459,4 +4566,132 @@ html body #pk-registration-modal .registration-card {
     margin: auto 0 !important;
   }
 }
+
+/* PARTNERKONTOR: drei Einführungsschritte auf großen Bildschirmen nebeneinander */
+.pk-steps-top {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  flex-direction: initial !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+}
+.pk-steps-top > .pk-compact-step {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+@media (max-width: 767px) {
+  .pk-steps-top {
+    grid-template-columns: 1fr !important;
+    gap: 9px !important;
+  }
+}
+
+
+/* PARTNERKONTOR – Kontaktbereich: optisches Muster */
+body.contact-view #kontakt .form-grid {
+  grid-template-columns: minmax(0, 2.4fr) minmax(240px, 0.8fr) !important;
+  gap: 16px !important;
+  align-items: stretch !important;
+}
+body.contact-view #kontakt .form-card {
+  padding: 18px 20px !important;
+  border-radius: 15px !important;
+}
+body.contact-view #kontakt .form-grid > .contact-process {
+  padding: 16px 16px !important;
+  border-radius: 14px !important;
+  box-shadow: 0 0 12px rgba(220,181,91,.09) !important;
+}
+body.contact-view #kontakt .contact-process h4 {
+  margin-top: 0 !important;
+  margin-bottom: 13px !important;
+  line-height: 1.3 !important;
+}
+body.contact-view #kontakt .contact-process-step {
+  gap: 9px !important;
+  margin-bottom: 10px !important;
+}
+body.contact-view #kontakt .contact-process-step p {
+  line-height: 1.4 !important;
+  margin-top: 3px !important;
+}
+body.contact-view #kontakt .contact-process-motto {
+  margin-top: 7px !important;
+  line-height: 1.4 !important;
+}
+@media (max-width: 900px) {
+  body.contact-view #kontakt .form-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  body.contact-view #kontakt .form-grid > .contact-process {
+    margin-top: 8px !important;
+  }
+}
+@media (max-width: 700px) {
+  body.contact-view #kontakt .form-card {
+    padding: 12px 10px !important;
+  }
+  body.contact-view #kontakt .form-grid > .contact-process {
+    padding: 13px 12px !important;
+  }
+}
+
+
+/* PARTNERKONTOR – Muster für die drei Vermittlungsschritte */
+.contact-process {
+  padding: 18px 16px 16px !important;
+  border: 1px solid rgba(225,184,98,.42) !important;
+  border-radius: 15px !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.055), rgba(255,255,255,.018)) !important;
+}
+.contact-process h4 {
+  margin: 0 0 15px !important;
+  padding-bottom: 11px !important;
+  border-bottom: 1px solid rgba(225,184,98,.28) !important;
+  text-align: center !important;
+}
+.contact-process .contact-process-step {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin: 10px 0 !important;
+  padding: 11px 10px !important;
+  border: 1px solid rgba(225,184,98,.20) !important;
+  border-radius: 11px !important;
+  background: rgba(5,18,35,.34) !important;
+}
+.contact-process .contact-step-number {
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  height: 34px !important;
+  font-size: 14px !important;
+}
+.contact-process .contact-process-step strong {
+  display: block !important;
+  margin-bottom: 4px !important;
+  color: #f2d38d !important;
+  line-height: 1.3 !important;
+}
+.contact-process .contact-process-step p {
+  margin: 0 !important;
+  line-height: 1.45 !important;
+}
+.contact-process .contact-process-motto {
+  margin-top: 13px !important;
+  padding-top: 12px !important;
+  text-align: center !important;
+  line-height: 1.5 !important;
+}
+@media (max-width: 700px) {
+  .contact-process {
+    padding: 14px 11px 12px !important;
+  }
+  .contact-process .contact-process-step {
+    gap: 10px !important;
+    padding: 10px 9px !important;
+  }
+}
+
 </style>
