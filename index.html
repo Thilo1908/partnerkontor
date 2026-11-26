@@ -4038,6 +4038,21 @@ document.addEventListener("click", function(event) {
 </script>
 
 <div id="seitenende" aria-hidden="true"></div>
+
+<style id="pk-mobile-menu-background-match">
+/* Das aufgeklappte Handymenü übernimmt den Seitenhintergrund statt einer blauen Fläche. */
+@media screen and (max-width: 760px) {
+  body > header.pk-shared-header .pk-shared-nav {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+  body > header.pk-shared-header .pk-shared-nav a {
+    background: transparent !important;
+  }
+}
+</style>
+
 </body>
 </html>
 
@@ -4923,6 +4938,49 @@ body.contact-view #kontakt .contact-process-motto {
     font-size: clamp(20px, 5.5vw, 27px) !important;
     transform: translateY(-50%) rotate(-8deg) !important;
     z-index: 20 !important;
+  }
+}
+</style>
+
+
+<style id="pk-mobile-steps-and-register-final-adjustment">
+/* Handy: Nummern ausblenden; fette Überschrift und Erklärung direkt hintereinander. */
+@media screen and (max-width: 760px) {
+  .pk-compact-steps.pk-steps-top .pk-compact-step > span {
+    display: none !important;
+  }
+  .pk-compact-steps.pk-steps-top .pk-compact-step p {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+    line-height: 1.45 !important;
+  }
+  .pk-compact-steps.pk-steps-top .pk-compact-step p strong {
+    display: inline !important;
+    white-space: normal !important;
+    margin: 0 5px 0 0 !important;
+  }
+  .pk-compact-steps.pk-steps-top .pk-compact-step p br {
+    display: none !important;
+    content: "" !important;
+  }
+}
+
+/* Ausschließlich „Registrieren“ blinkt deutlich sichtbar im goldenen Feld. */
+.hero-label-wrap .hero-label .pk-register-script {
+  animation: pkRegisterClearBlink .85s ease-in-out infinite !important;
+}
+@keyframes pkRegisterClearBlink {
+  0%, 100% {
+    opacity: 1;
+    filter: brightness(1.35);
+    text-shadow: 0 0 5px #fff2c7, 0 0 13px #ffd36b, 0 0 23px #e5a82e;
+  }
+  50% {
+    opacity: .38;
+    filter: brightness(.8);
+    text-shadow: 0 0 1px rgba(255,242,199,.25);
   }
 }
 </style>
