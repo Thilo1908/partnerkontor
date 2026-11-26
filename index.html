@@ -3977,8 +3977,12 @@ function pkSchliesseRegistrierung(zumSeitenende = false, event) {
   document.body.classList.remove("pk-registration-open");
   document.body.style.overflow = "";
   if (zumSeitenende) {
-    // Der Textlink führt bewusst zum unteren Ende der Startseite.
-    requestAnimationFrame(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    // Der Zurück-Button schließt die Kachel und führt zum Anfang der Startseite.
+    requestAnimationFrame(() => {
+      const scrollbereich = document.querySelector("body > main");
+      if (scrollbereich) scrollbereich.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
   } else {
     // Das X schließt nur das Fenster und lässt die bisherige Seitenposition bestehen.
     requestAnimationFrame(() => window.scrollTo(0, pkRegistrierungsScrollPosition));
@@ -4757,3 +4761,128 @@ body.contact-view #kontakt .contact-process-motto {
 }
 </style>
 
+
+<style id="pk-mobile-centering-and-stability-final">
+/* PARTNERKONTOR – mobile Ausrichtung und ruhiges Layout */
+@media (max-width: 760px) {
+  /* Hauptinhalt ohne seitliche Verschiebung und ohne horizontales Überlaufen */
+  body > main {
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    overflow-x: clip !important;
+  }
+
+  body > main > section.hero#start,
+  body > main > section#pk-start-intro {
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* Schritte 1, 2 und 3 untereinander und exakt mittig */
+  body > main > .pk-steps-top {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    justify-items: center !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 600px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    gap: 9px !important;
+    transform: none !important;
+    position: relative !important;
+    left: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  body > main > .pk-steps-top > .pk-compact-step {
+    width: 100% !important;
+    max-width: 600px !important;
+    min-width: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    transform: none !important;
+    position: relative !important;
+    left: 0 !important;
+    box-sizing: border-box !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  /* Registrierungskachel stabil mittig halten */
+  html body #pk-registration-modal {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    transform: none !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  html body #pk-registration-modal .registration-card {
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+</style>
+
+
+
+<style id="pk-mobile-register-button-no-text-overlap">
+/* Mobil: Platz für den Registrieren-Schriftzug reservieren, damit er keinen Bannertext überdeckt. */
+@media (max-width: 760px) {
+  .hero-label-wrap .hero-label {
+    position: relative !important;
+    min-height: 76px !important;
+    box-sizing: border-box !important;
+    padding: 10px 112px 10px 12px !important;
+    overflow: visible !important;
+  }
+  .hero-label-wrap .hero-label > span:first-child {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    text-align: left !important;
+    line-height: 1.25 !important;
+    overflow-wrap: break-word !important;
+  }
+  .hero-label-wrap .hero-label small {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 5px 0 0 !important;
+    white-space: normal !important;
+    text-align: left !important;
+    line-height: 1.25 !important;
+  }
+  .hero-label-wrap .hero-label .pk-register-script {
+    position: absolute !important;
+    left: auto !important;
+    right: 9px !important;
+    top: 50% !important;
+    width: 96px !important;
+    max-width: 96px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    white-space: normal !important;
+    text-align: center !important;
+    line-height: 1.05 !important;
+    font-size: clamp(20px, 5.5vw, 27px) !important;
+    transform: translateY(-50%) rotate(-8deg) !important;
+    z-index: 20 !important;
+  }
+}
+</style>
