@@ -182,6 +182,8 @@ button.submit:disabled { opacity:.7; cursor:wait; }
         <p id="industryError" class="field-error" role="alert"></p>
         <label for="services">Welche Produkte oder Dienstleistungen bieten Sie an? <span class="required">*</span></label>
         <textarea id="services" required placeholder="Beschreiben Sie Ihre angebotenen Leistungen möglichst genau."></textarea>
+        <label for="addedValue">Was können Sie PARTNERKONTOR und unseren Kunden bieten? <span class="required">*</span></label>
+        <textarea id="addedValue" required placeholder="Beschreiben Sie den besonderen Mehrwert Ihres Unternehmens für PARTNERKONTOR und unsere Kunden."></textarea>
         <label for="motivation">Warum möchten Sie Partner bei PARTNERKONTOR werden? <span class="optional">(freiwillige Angabe)</span></label>
         <textarea id="motivation" placeholder="Was erwarten Sie von einer Zusammenarbeit? Welche Ziele verfolgen Sie?"></textarea>
         <label class="privacy-check" id="datenschutz">
@@ -194,8 +196,6 @@ button.submit:disabled { opacity:.7; cursor:wait; }
     </div>
   </form>
   </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL =
@@ -357,6 +357,9 @@ applicationForm.addEventListener(
 
       company_description:
         document.getElementById("companyDescription").value.trim(),
+
+      added_value:
+        document.getElementById("addedValue").value.trim(),
 
       motivation:
         document.getElementById("motivation").value.trim(),
