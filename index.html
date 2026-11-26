@@ -4053,6 +4053,28 @@ document.addEventListener("click", function(event) {
 }
 </style>
 
+
+<style id="pk-hero-main-heading-single-line-fit">
+/* Hauptschrift im Goldfeld in einer Zeile halten und passend zur Feldbreite skalieren. */
+.hero-label-wrap .hero-label > span:first-child {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+  font-size: clamp(15px, 2.05vw, 27px) !important;
+  line-height: 1.2 !important;
+  letter-spacing: .35px !important;
+  box-sizing: border-box !important;
+}
+@media screen and (max-width: 760px) {
+  .hero-label-wrap .hero-label > span:first-child {
+    font-size: clamp(10px, 3.15vw, 15px) !important;
+    letter-spacing: .15px !important;
+  }
+}
+</style>
+
 </body>
 </html>
 
