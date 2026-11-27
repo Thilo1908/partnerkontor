@@ -352,7 +352,7 @@ Zentrale Verwaltung der PARTNERKONTOR-Plattform
   <button type="button" data-page="home" class="active">Verwaltungsbereich</button>
   <button type="button" data-page="partners">Partnerverwaltung</button>
   <button type="button" data-page="applications">Partnerbewerbungen</button>
-  <button type="button" data-page="customers" disabled>Kundenverwaltung</button>
+  <button type="button" data-page="accounts">Kontoverwaltung</button>
   <button type="button" data-page="inquiries">Anfragenverwaltung</button>
     
 <button type="button" id="openNotebook">Notizbuch</button>
@@ -382,9 +382,9 @@ Partnerverwaltung öffnen
   </button>
 </div>
 <div class="card">
-<h2>Kundenverwaltung</h2>
-<p>Kunden und ihre Anfragen zentral verwalten.</p>
-<button class="secondary" disabled>In Vorbereitung</button>
+<h2>Kontoverwaltung</h2>
+<p>Kunden- und Partnerkonten gemeinsam verwalten, zeitweise oder dauerhaft sperren und wieder freigeben.</p>
+<button class="primary" id="openAccounts">Konten verwalten</button>
 </div>
 
 <div class="card">
@@ -639,6 +639,78 @@ Abbrechen
   </div>
 
 </section>
+
+<section id="accountSection" class="hidden">
+  <div class="toolbar">
+    <h2>Kontoverwaltung</h2>
+    <button class="secondary" type="button" id="backDashboardFromAccounts">Zurück zur Übersicht</button>
+  </div>
+
+  <div class="panel">
+    <div class="toolbar">
+      <h2>Kunden- und Partnerkonten</h2>
+      <button class="secondary" type="button" id="reloadAccounts">Aktualisieren</button>
+    </div>
+    <p class="subtitle">Ein Benutzerkonto wird nur einmal angezeigt – auch wenn dieselbe Person Kunde und Partner ist. Eine Sperre gilt für das gesamte Benutzerkonto.</p>
+    <input type="search" id="searchAccounts" placeholder="Name, Nummer oder E-Mail suchen ...">
+    <div id="accountMessage" class="message">Konten werden geladen ...</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Kunden-/Partnernummer</th>
+            <th>Name / Unternehmen</th>
+            <th>E-Mail</th>
+            <th>Rolle</th>
+            <th>Kontostatus</th>
+            <th>Sperrinformation</th>
+            <th>Aktion</th>
+          </tr>
+        </thead>
+        <tbody id="accountTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel hidden" id="accountActionPanel" style="margin-top:22px">
+    <h2 id="accountActionTitle">Konto sperren</h2>
+    <p id="accountActionPerson" class="subtitle"></p>
+    <div id="suspendFields">
+      <div class="form-grid">
+        <label>Sperrart
+          <select id="accountSuspensionType">
+            <option value="temporary">Vorübergehend</option>
+            <option value="permanent">Dauerhaft</option>
+          </select>
+        </label>
+        <label>Sperrgrund
+          <select id="accountReasonCode">
+            <option value="payment_overdue">Zahlungsverzug</option>
+            <option value="fraud_suspected">Betrugsverdacht</option>
+            <option value="fraud_confirmed">Betrug bestätigt</option>
+            <option value="abuse">Missbrauch</option>
+            <option value="other">Sonstiger Grund</option>
+          </select>
+        </label>
+        <label id="suspendedUntilLabel">Sperre bis
+          <input type="datetime-local" id="accountSuspendedUntil">
+        </label>
+      </div>
+      <label>Interne Begründung / Notiz
+        <textarea id="accountReasonNote" rows="3" placeholder="Grund der Kontosperre dokumentieren ..."></textarea>
+      </label>
+    </div>
+    <div id="reactivateFields" class="hidden">
+      <label>Notiz zur Freigabe
+        <textarea id="accountLiftNote" rows="3" placeholder="Optional: Grund der Freigabe"></textarea>
+      </label>
+    </div>
+    <button class="danger" type="button" id="confirmAccountAction">Konto sperren</button>
+    <button class="secondary" type="button" id="cancelAccountAction">Abbrechen</button>
+    <div id="accountActionMessage" class="message hidden"></div>
+  </div>
+</section>
+
 <section id="inquirySection" class="hidden">
 
   <div class="toolbar">
@@ -817,12 +889,14 @@ async function navigateAdmin(page, remember = true) {
   const partnerSection = document.getElementById("partnerSection");
   const applicationSection = document.getElementById("applicationSection");
   const inquirySection = document.getElementById("inquirySection");
+  const accountSection = document.getElementById("accountSection");
 const notebookSection = document.getElementById("notebookSection");
   
   dashboardGrid.classList.add("hidden");
   partnerSection.classList.add("hidden");
   applicationSection.classList.add("hidden");
   inquirySection.classList.add("hidden");
+  accountSection.classList.add("hidden");
 
   document.querySelectorAll("#adminNavigation button[data-page]")
     .forEach(button => {
@@ -842,6 +916,11 @@ const notebookSection = document.getElementById("notebookSection");
   if (page === "applications") {
     applicationSection.classList.remove("hidden");
     await ladeBewerbungen();
+  }
+
+  if (page === "accounts") {
+    accountSection.classList.remove("hidden");
+    await ladeKonten();
   }
 
   if (page === "inquiries") {
@@ -1394,6 +1473,230 @@ document.getElementById("logout")
     window.location.href = "index.html";
   });
 
+
+
+// ==========================================
+// ZENTRALE KONTOVERWALTUNG
+// ==========================================
+let accountRows = [];
+let selectedAccount = null;
+let selectedAccountAction = "suspend";
+
+function accountDateText(value) {
+  if (!value) return "–";
+  return new Date(value).toLocaleString("de-DE");
+}
+
+async function ladeKonten() {
+  const message = document.getElementById("accountMessage");
+  const table = document.getElementById("accountTable");
+  message.textContent = "Kunden- und Partnerkonten werden geladen ...";
+  table.innerHTML = "";
+
+  const [partnerResult, customerResult, controlResult] = await Promise.all([
+    supabaseClient.from("partners").select("*").order("created_at", { ascending: false }),
+    supabaseClient.from("customers").select("*").order("created_at", { ascending: false }),
+    supabaseClient.from("account_controls").select("*")
+  ]);
+
+  if (partnerResult.error) {
+    message.textContent = "Partnerkonten konnten nicht geladen werden: " + partnerResult.error.message;
+    return;
+  }
+  if (customerResult.error) {
+    message.textContent = "Kundenkonten konnten nicht geladen werden: " + customerResult.error.message;
+    return;
+  }
+  if (controlResult.error) {
+    message.textContent = "Sperrstatus konnte nicht geladen werden: " + controlResult.error.message;
+    return;
+  }
+
+  const byUser = new Map();
+  const addRole = (person, role) => {
+    if (!person.auth_user_id) return;
+    let item = byUser.get(person.auth_user_id);
+    if (!item) {
+      item = {
+        user_id: person.auth_user_id,
+        name: [person.first_name, person.last_name].filter(Boolean).join(" "),
+        company: person.company_name || "",
+        email: person.email || "",
+        numbers: [],
+        roles: [],
+        records: []
+      };
+      byUser.set(person.auth_user_id, item);
+    }
+    if (person.first_name || person.last_name) {
+      const fullName = [person.first_name, person.last_name].filter(Boolean).join(" ");
+      if (!item.name) item.name = fullName;
+    }
+    if (person.company_name) item.company = person.company_name;
+    if (person.email && !item.email) item.email = person.email;
+    const number = role === "Partner" ? person.partner_number : person.customer_number;
+    if (number && !item.numbers.includes(number)) item.numbers.push(number);
+    if (!item.roles.includes(role)) item.roles.push(role);
+    item.records.push(person);
+  };
+
+  (partnerResult.data || []).forEach(person => addRole(person, "Partner"));
+  (customerResult.data || []).forEach(person => addRole(person, "Kunde"));
+
+  const controls = new Map((controlResult.data || []).map(row => [row.user_id, row]));
+  accountRows = Array.from(byUser.values()).map(item => ({
+    ...item,
+    control: controls.get(item.user_id) || null
+  }));
+
+  renderKonten();
+}
+
+function renderKonten() {
+  const search = (document.getElementById("searchAccounts").value || "").toLowerCase();
+  const table = document.getElementById("accountTable");
+  const filtered = accountRows.filter(item =>
+    [item.name, item.company, item.email, item.numbers.join(" "), item.roles.join(" ")]
+      .join(" ").toLowerCase().includes(search)
+  );
+
+  table.innerHTML = filtered.map(item => {
+    const control = item.control;
+    const temporaryExpired = control?.account_status === "suspended" &&
+      control.suspension_type === "temporary" && control.suspended_until &&
+      new Date(control.suspended_until).getTime() <= Date.now();
+    const suspended = control?.account_status === "suspended" && !temporaryExpired;
+    const statusText = suspended ? "Gesperrt" :
+      temporaryExpired ? "Sperrzeit abgelaufen – Freigabe prüfen" : "Aktiv";
+    const info = suspended || temporaryExpired
+      ? `${control.suspension_type === "permanent" ? "Dauerhaft" : "Vorübergehend"} · ${escapeHTML(control.reason_note || control.reason_code || "Kein Grund angegeben")}<br>Seit: ${escapeHTML(accountDateText(control.suspended_at))}${control.suspended_until ? "<br>Bis: " + escapeHTML(accountDateText(control.suspended_until)) : ""}`
+      : "Keine aktive Sperre";
+    return `<tr>
+      <td>${escapeHTML(item.numbers.join(" / ") || "–")}</td>
+      <td>${escapeHTML([item.company, item.name].filter(Boolean).join(" · ") || "–")}</td>
+      <td>${escapeHTML(item.email || "–")}</td>
+      <td>${escapeHTML(item.roles.join(" / "))}</td>
+      <td><span class="badge">${statusText}</span></td>
+      <td>${info}</td>
+      <td>${suspended || temporaryExpired
+        ? `<button type="button" class="primary" data-account-reactivate="${escapeHTML(item.user_id)}">Freigeben</button>`
+        : `<button type="button" class="danger" data-account-suspend="${escapeHTML(item.user_id)}">Sperren</button>`}
+      </td>
+    </tr>`;
+  }).join("");
+
+  document.getElementById("accountMessage").textContent =
+    `${filtered.length} Benutzerkonto/-konten gefunden.`;
+}
+
+function oeffneKontenAktion(userId, action) {
+  selectedAccount = accountRows.find(item => item.user_id === userId);
+  if (!selectedAccount) return;
+  selectedAccountAction = action;
+
+  const panel = document.getElementById("accountActionPanel");
+  const suspendFields = document.getElementById("suspendFields");
+  const reactivateFields = document.getElementById("reactivateFields");
+  const isSuspend = action === "suspend";
+
+  document.getElementById("accountActionTitle").textContent =
+    isSuspend ? "Benutzerkonto sperren" : "Benutzerkonto freigeben";
+  document.getElementById("accountActionPerson").textContent =
+    `${selectedAccount.company ? selectedAccount.company + " – " : ""}${selectedAccount.name || selectedAccount.email} · ${selectedAccount.roles.join(" / ")}`;
+  suspendFields.classList.toggle("hidden", !isSuspend);
+  reactivateFields.classList.toggle("hidden", isSuspend);
+  document.getElementById("confirmAccountAction").textContent =
+    isSuspend ? "Konto jetzt sperren" : "Konto freigeben";
+  document.getElementById("confirmAccountAction").className =
+    isSuspend ? "danger" : "primary";
+  document.getElementById("accountActionMessage").classList.add("hidden");
+  document.getElementById("accountReasonNote").value = "";
+  document.getElementById("accountLiftNote").value = "";
+  document.getElementById("accountActionPanel").classList.remove("hidden");
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function fuehreKontenAktionAus() {
+  if (!selectedAccount) return;
+  const button = document.getElementById("confirmAccountAction");
+  const message = document.getElementById("accountActionMessage");
+  button.disabled = true;
+  button.textContent = "Bitte warten ...";
+  message.classList.remove("hidden");
+  message.textContent = "Änderung wird sicher über die Kontoverwaltung ausgeführt ...";
+
+  try {
+    let body;
+    if (selectedAccountAction === "suspend") {
+      const type = document.getElementById("accountSuspensionType").value;
+      const reason = document.getElementById("accountReasonCode").value;
+      const note = document.getElementById("accountReasonNote").value.trim();
+      const untilValue = document.getElementById("accountSuspendedUntil").value;
+
+      if (type === "temporary" && !untilValue) {
+        throw new Error("Bitte ein Enddatum für die vorübergehende Sperre festlegen.");
+      }
+      if (type === "temporary" && new Date(untilValue).getTime() <= Date.now()) {
+        throw new Error("Das Ende der Sperre muss in der Zukunft liegen.");
+      }
+      body = {
+        action: "suspend",
+        user_id: selectedAccount.user_id,
+        suspension_type: type,
+        reason_code: reason,
+        reason_note: note,
+        suspended_until: type === "temporary" ? new Date(untilValue).toISOString() : null
+      };
+    } else {
+      body = {
+        action: "reactivate",
+        user_id: selectedAccount.user_id,
+        lift_note: document.getElementById("accountLiftNote").value.trim()
+      };
+    }
+
+    const { data, error } = await supabaseClient.functions.invoke(
+      "manage-account-status", { body }
+    );
+    if (error) throw error;
+    if (data?.error) throw new Error(data.error);
+
+    message.textContent = selectedAccountAction === "suspend"
+      ? "Das Benutzerkonto wurde gesperrt."
+      : "Das Benutzerkonto wurde freigegeben.";
+    await ladeKonten();
+    document.getElementById("accountActionPanel").classList.add("hidden");
+    selectedAccount = null;
+  } catch (error) {
+    message.textContent = "Fehler: " + (error.message || "Die Änderung konnte nicht ausgeführt werden.");
+  } finally {
+    button.disabled = false;
+    button.textContent = selectedAccountAction === "suspend" ? "Konto jetzt sperren" : "Konto freigeben";
+  }
+}
+
+document.getElementById("accountSuspensionType").addEventListener("change", event => {
+  document.getElementById("suspendedUntilLabel").classList.toggle(
+    "hidden", event.target.value !== "temporary"
+  );
+});
+document.getElementById("accountTable").addEventListener("click", event => {
+  const suspend = event.target.closest("[data-account-suspend]");
+  const reactivate = event.target.closest("[data-account-reactivate]");
+  if (suspend) oeffneKontenAktion(suspend.dataset.accountSuspend, "suspend");
+  if (reactivate) oeffneKontenAktion(reactivate.dataset.accountReactivate, "reactivate");
+});
+document.getElementById("confirmAccountAction").addEventListener("click", fuehreKontenAktionAus);
+document.getElementById("cancelAccountAction").addEventListener("click", () => {
+  document.getElementById("accountActionPanel").classList.add("hidden");
+  selectedAccount = null;
+});
+document.getElementById("searchAccounts").addEventListener("input", renderKonten);
+document.getElementById("reloadAccounts").addEventListener("click", ladeKonten);
+document.getElementById("openAccounts").addEventListener("click", () => navigateAdmin("accounts"));
+document.getElementById("backDashboardFromAccounts").addEventListener("click", () => {
+  document.getElementById("navBack").click();
+});
 
 const inquiryStatusNames = {
   new: "Neu",
