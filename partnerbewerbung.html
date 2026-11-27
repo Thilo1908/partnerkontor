@@ -116,11 +116,51 @@ button.submit:disabled { opacity:.7; cursor:wait; }
   .page-intro { position:relative; left:-2.5cm; }
 }
 @media(max-width:600px) {
-  main { padding:12px 10px 28px; }
+  html, body {
+    height:auto;
+    min-height:100%;
+    overflow-y:auto;
+    overflow-x:hidden;
+  }
+  body { background-attachment:scroll; }
+  main {
+    width:100%;
+    min-height:100svh;
+    height:auto;
+    overflow:visible;
+    padding:12px 10px 32px;
+  }
+  #applicationForm { width:100%; min-width:0; }
   .page-intro { padding:12px 5px; }
-  .application-columns { padding:0 5px 15px; gap:8px; }
-  .field-grid { grid-template-columns:1fr; }
+  .form-heading { width:100%; padding-left:5px; padding-right:5px; }
+  .application-columns {
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    width:100%;
+    min-width:0;
+    padding:0 5px 20px;
+    gap:8px;
+    overflow:visible;
+  }
+  .panel, .field-grid, .field {
+    width:100%;
+    min-width:0;
+  }
+  .field-grid { grid-template-columns:minmax(0,1fr); }
   .panel { padding:8px 0; }
+  input:not([type=checkbox]), textarea, select {
+    width:100%;
+    max-width:100%;
+    min-width:0;
+  }
+  textarea {
+    min-height:100px;
+    height:auto;
+    overflow-y:hidden;
+    overflow-wrap:anywhere;
+    white-space:pre-wrap;
+    resize:none;
+  }
   .branch-modal { padding:16px 12px 12px; align-items:flex-start; justify-content:center; }
   .branch-modal-panel { width:100%; }
 }
@@ -293,6 +333,24 @@ button.submit:disabled { opacity:.7; cursor:wait; }
   </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+/* Mobile Textfelder wachsen mit dem eingegebenen Text; die Seite bleibt dabei normal scrollbar. */
+(function () {
+  const mobileView = window.matchMedia("(max-width: 600px)");
+  function fitTextareas() {
+    if (!mobileView.matches) return;
+    document.querySelectorAll("#applicationForm textarea").forEach(function (field) {
+      field.style.height = "auto";
+      field.style.height = field.scrollHeight + "px";
+    });
+  }
+  document.addEventListener("input", function (event) {
+    if (event.target && event.target.matches("#applicationForm textarea")) {
+      fitTextareas();
+    }
+  });
+  window.addEventListener("resize", fitTextareas);
+  fitTextareas();
+})();
 const SUPABASE_URL =
   "https://gzcsqwnkusvbngljqxbd.supabase.co";
 
