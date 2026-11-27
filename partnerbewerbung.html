@@ -60,9 +60,9 @@ h1 { margin:0 0 8px; color:#e7c47f; font-size:clamp(25px,3vw,34px); }
 label { display:block; margin:9px 0 5px; color:#f0d9a8; font-size:13px; font-weight:bold; }
 .required { color:#ffaaa0; }
 .optional { color:#c3cbd5; font-size:11px; font-weight:normal; }
-input:not([type=checkbox]), textarea { display:block; width:100%; min-width:0; padding:10px 11px; border:1px solid #c49b55; border-radius:6px; background:rgba(255,255,255,.96); color:#17283a; font:14px Arial,sans-serif; }
+input:not([type=checkbox]), textarea, select { display:block; width:100%; min-width:0; padding:10px 11px; border:1px solid #c49b55; border-radius:6px; background:rgba(255,255,255,.96); color:#17283a; font:14px Arial,sans-serif; }
 textarea { min-height:76px; resize:vertical; line-height:1.45; }
-input:focus, textarea:focus { outline:none; border-color:#f0cf8c; box-shadow:0 0 0 2px rgba(196,155,85,.28); }
+input:focus, textarea:focus, select:focus { outline:none; border-color:#f0cf8c; box-shadow:0 0 0 2px rgba(196,155,85,.28); }
 .hint { color:#d3dce6; font-size:12px; line-height:1.5; margin:5px 0 8px; }
 .branch-instruction { max-width:300px; }
 .branch-open-button { display:inline-flex; align-items:center; gap:12px; width:auto; margin:4px 0 7px; padding:9px 14px; border:1px solid #c49b55; border-radius:7px; background:rgba(8,32,55,.22); color:#f1d49a; font-size:13px; font-weight:bold; cursor:pointer; }
@@ -93,6 +93,20 @@ a { color:#e2bd79; }
 button.submit { width:100%; margin-top:12px; padding:12px 15px; border:1px solid #c49b55; border-radius:7px; background:rgba(8,32,55,.22); color:#f1d49a; font-size:15px; font-weight:bold; cursor:pointer; transition:all .2s ease; }
 button.submit:hover, button.submit:focus-visible { background:linear-gradient(135deg,#c49b55,#e4c27e); color:#07111e; border-color:#ffe3a3; text-shadow:0 0 8px #ffd77a, 0 0 16px #e6b85e; box-shadow:0 0 12px rgba(255,215,122,.95), 0 0 26px rgba(228,178,82,.75); outline:none; transform:translateY(-1px); }
 button.submit:disabled { opacity:.7; cursor:wait; }
+.review-button { width:100%; margin-top:12px; padding:12px 15px; border:1px solid #c49b55; border-radius:7px; background:rgba(8,32,55,.22); color:#f1d49a; font-size:15px; font-weight:bold; cursor:pointer; }
+.review-button:hover { background:linear-gradient(135deg,#c49b55,#e4c27e); color:#07111e; }
+.review-modal[hidden] { display:none; }
+.review-modal { position:fixed; inset:0; z-index:3000; display:flex; align-items:center; justify-content:center; padding:18px; background:rgba(0,0,0,.76); }
+.review-panel { width:min(100%,680px); max-height:85vh; overflow:auto; padding:20px; border:1px solid #c49b55; border-radius:14px; background:linear-gradient(145deg,#101c2b,#05090f); color:#eaf0f6; box-shadow:0 18px 55px rgba(0,0,0,.55); }
+.review-panel h2 { margin:0 0 8px; color:#e7c47f; }
+.review-panel p { font-size:13px; line-height:1.5; }
+.review-summary { display:grid; grid-template-columns:1fr 1fr; gap:9px 18px; margin:14px 0; }
+.review-item { min-width:0; padding:8px 0; border-bottom:1px solid rgba(196,155,85,.25); overflow-wrap:anywhere; }
+.review-item strong { display:block; color:#e7c47f; font-size:12px; margin-bottom:3px; }
+.review-actions { display:flex; gap:10px; flex-wrap:wrap; }
+.review-actions button { flex:1; min-width:150px; }
+.review-edit { padding:12px 15px; border:1px solid #aeb8c4; border-radius:7px; background:transparent; color:#eaf0f6; cursor:pointer; }
+@media(max-width:600px) { .review-summary { grid-template-columns:1fr; } }
 #message { margin:10px 0 0; font-size:13px; line-height:1.5; overflow-wrap:anywhere; }
 @media(max-width:850px) {
   .application-columns { grid-template-columns:1fr; max-width:650px; gap:14px; }
@@ -147,7 +161,7 @@ button.submit:disabled { opacity:.7; cursor:wait; }
           </div>
           <div class="field">
             <label for="phone">Telefon <span class="required">*</span></label>
-            <input id="phone" type="tel" required autocomplete="tel">
+            <input id="phone" type="tel" required autocomplete="tel" pattern="[+0-9() ./-]{6,}" title="Bitte geben Sie eine gültige Telefonnummer ein.">
           </div>
           <div class="field">
             <label for="street">Straße und Hausnummer <span class="required">*</span></label>
@@ -164,6 +178,44 @@ button.submit:disabled { opacity:.7; cursor:wait; }
         </div>
         <label for="companyDescription">Stellen Sie Ihr Unternehmen vor. <span class="required">*</span></label>
         <textarea id="companyDescription" required placeholder="Wie lange besteht Ihr Unternehmen? Welche Erfahrungen und Kompetenzen bringen Sie mit?"></textarea>
+
+        <h2 class="section-title" style="margin-top:22px">Weitere Unternehmensangaben</h2>
+        <div class="field-grid">
+          <div class="field">
+            <label for="employeeCount">Wie viele Mitarbeiter hat Ihr Unternehmen? <span class="optional">(freiwillig)</span></label>
+            <select id="employeeCount">
+              <option value="">Bitte auswählen (optional)</option>
+              <option value="Einzelunternehmen">Einzelunternehmen / allein tätig</option>
+              <option value="2–5 Mitarbeiter">2–5 Mitarbeiter</option>
+              <option value="6–20 Mitarbeiter">6–20 Mitarbeiter</option>
+              <option value="21–50 Mitarbeiter">21–50 Mitarbeiter</option>
+              <option value="Mehr als 50 Mitarbeiter">Mehr als 50 Mitarbeiter</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="foundingYear">Gründungsjahr <span class="optional">(freiwillig)</span></label>
+            <input id="foundingYear" type="number" min="1800" max="2100" placeholder="z. B. 2012">
+          </div>
+          <div class="field">
+            <label for="preferredOrderSize">Welche Auftragsgröße bevorzugen Sie? <span class="optional">(freiwillig)</span></label>
+            <select id="preferredOrderSize">
+              <option value="">Keine Einschränkung / keine Angabe</option>
+              <option value="Kleinaufträge">Kleinaufträge</option>
+              <option value="Mittlere Aufträge">Mittlere Aufträge</option>
+              <option value="Großaufträge">Großaufträge</option>
+              <option value="Projektabhängig">Abhängig vom Projekt</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="referenceLink">Referenzen oder Arbeitsproben (Link) <span class="optional">(freiwillig)</span></label>
+            <input id="referenceLink" type="url" placeholder="https://...">
+          </div>
+        </div>
+        <label for="qualifications">Besondere Qualifikationen und Zertifikate <span class="optional">(freiwillig)</span></label>
+        <textarea id="qualifications" placeholder="z. B. Meisterbrief, Fachzulassungen, Zertifizierungen oder besondere Kenntnisse"></textarea>
+        <label for="referenceFiles">Bilder oder Referenzprojekte hochladen <span class="optional">(freiwillig)</span></label>
+        <input id="referenceFiles" type="file" accept="image/*,.pdf" multiple>
+        <p class="hint">Sie können mehrere Bilder oder PDF-Dateien auswählen. Die Speicherung der Dateien wird im nächsten Schritt mit dem sicheren Datei-Speicher verbunden.</p>
       </section>
 
       <section class="panel">
@@ -198,6 +250,20 @@ button.submit:disabled { opacity:.7; cursor:wait; }
           </div>
         </div>
         <p id="industryError" class="field-error" role="alert"></p>
+        <label for="serviceArea">In welchem Gebiet möchten Sie tätig sein? <span class="optional">(freiwillige Angabe)</span></label>
+        <select id="serviceArea">
+          <option value="" selected disabled>Bitte Einsatzgebiet auswählen</option>
+          <option value="Nur am eigenen Standort">Nur am eigenen Standort</option>
+          <option value="Bis 25 km Umkreis">Bis 25 km Umkreis</option>
+          <option value="Bis 50 km Umkreis">Bis 50 km Umkreis</option>
+          <option value="Bis 100 km Umkreis">Bis 100 km Umkreis</option>
+          <option value="Bundesweit">Bundesweit</option>
+          <option value="Individuelles Einsatzgebiet">Individuelles Einsatzgebiet</option>
+        </select>
+        <div id="customServiceAreaBox" hidden>
+          <label for="customServiceArea">Bitte beschreiben Sie Ihr Einsatzgebiet.</label>
+          <input type="text" id="customServiceArea" placeholder="z. B. Oberfranken und südliches Thüringen">
+        </div>
         <label for="services">Welche Produkte oder Dienstleistungen bieten Sie an? <span class="required">*</span></label>
         <textarea id="services" required placeholder="Beschreiben Sie Ihre angebotenen Leistungen möglichst genau."></textarea>
         <label for="addedValue">Was können Sie PARTNERKONTOR und unseren Kunden bieten? <span class="required">*</span></label>
@@ -208,8 +274,19 @@ button.submit:disabled { opacity:.7; cursor:wait; }
           <input type="checkbox" id="privacyAccepted" required>
           <span>Ich habe die <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung meiner Angaben zur Prüfung meiner Partnerbewerbung einverstanden. <span class="required">*</span></span>
         </label>
-        <button type="submit" class="submit" id="submitButton">Partnerbewerbung absenden</button>
+        <button type="button" class="review-button" id="reviewButton">Angaben prüfen</button>
         <p id="message" role="status" aria-live="polite"></p>
+      </section>
+    </div>
+    <div class="review-modal" id="reviewModal" hidden>
+      <section class="review-panel" role="dialog" aria-modal="true" aria-labelledby="reviewTitle">
+        <h2 id="reviewTitle">Bitte prüfen Sie Ihre Angaben</h2>
+        <p>Kontrollieren Sie Ihre Bewerbung. Über „Zurück zur Bearbeitung“ können Sie jederzeit Änderungen vornehmen.</p>
+        <div class="review-summary" id="reviewSummary"></div>
+        <div class="review-actions">
+          <button type="button" class="review-edit" id="editApplication">Zurück zur Bearbeitung</button>
+          <button type="button" class="submit" id="submitButton">Bewerbung verbindlich absenden</button>
+        </div>
       </section>
     </div>
   </form>
@@ -235,6 +312,10 @@ const message =
 
 const submitButton =
   document.getElementById("submitButton");
+const reviewButton = document.getElementById("reviewButton");
+const reviewModal = document.getElementById("reviewModal");
+const reviewSummary = document.getElementById("reviewSummary");
+const editApplicationButton = document.getElementById("editApplication");
 
 const otherIndustryToggle = document.getElementById("otherIndustryToggle");
 const otherIndustryInput = document.getElementById("otherIndustry");
@@ -245,6 +326,16 @@ const openBranchModal = document.getElementById("openBranchModal");
 const closeBranchModal = document.getElementById("closeBranchModal");
 const confirmBranchSelection = document.getElementById("confirmBranchSelection");
 const branchSelectionHint = document.getElementById("branchSelectionHint");
+const serviceAreaSelect = document.getElementById("serviceArea");
+const customServiceAreaBox = document.getElementById("customServiceAreaBox");
+const customServiceAreaInput = document.getElementById("customServiceArea");
+
+serviceAreaSelect.addEventListener("change", function() {
+  const isCustom = serviceAreaSelect.value === "Individuelles Einsatzgebiet";
+  customServiceAreaBox.hidden = !isCustom;
+  customServiceAreaInput.required = isCustom;
+  if (!isCustom) customServiceAreaInput.value = "";
+});
 
 function showBranchModal() {
   branchModal.hidden = false;
@@ -298,6 +389,79 @@ otherIndustryToggle.addEventListener("change", function() {
   } else {
     otherIndustryInput.value = "";
   }
+});
+
+
+function showApplicationReview() {
+  if (!applicationForm.reportValidity()) return;
+  const selectedIndustries = Array.from(document.querySelectorAll('input[name="industryChoice"]:checked'));
+  industryError.textContent = "";
+  if (selectedIndustries.length === 0) {
+    industryError.textContent = "Bitte wählen Sie mindestens eine Branche aus.";
+    showBranchModal();
+    return;
+  }
+  if (otherIndustryToggle.checked && !otherIndustryInput.value.trim()) {
+    industryError.textContent = "Bitte tragen Sie Ihre neue Branche ein.";
+    showBranchModal();
+    otherIndustryInput.focus();
+    return;
+  }
+  const fields = [
+    ["Firmenname", "companyName"], ["Internetseite", "website"],
+    ["Ansprechpartner", "firstName", "lastName"], ["E-Mail", "email"],
+    ["Telefon", "phone"], ["Straße und Hausnummer", "street"],
+    ["Postleitzahl", "postalCode"], ["Ort", "city"],
+    ["Unternehmensbeschreibung", "companyDescription"],
+    ["Mitarbeiterzahl", "employeeCount"], ["Gründungsjahr", "foundingYear"],
+    ["Bevorzugte Auftragsgröße", "preferredOrderSize"],
+    ["Referenzlink", "referenceLink"], ["Qualifikationen", "qualifications"],
+    ["Einsatzgebiet", "serviceArea"], ["Individuelles Einsatzgebiet", "customServiceArea"],
+    ["Produkte und Dienstleistungen", "services"], ["Mehrwert", "addedValue"],
+    ["Motivation", "motivation"]
+  ];
+  reviewSummary.replaceChildren();
+  fields.forEach(([label, ...ids]) => {
+    const value = ids.map(id => document.getElementById(id)?.value?.trim()).filter(Boolean).join(" ");
+    if (!value) return;
+    const item = document.createElement("div");
+    item.className = "review-item";
+    const heading = document.createElement("strong");
+    heading.textContent = label;
+    const content = document.createElement("span");
+    content.textContent = value;
+    item.append(heading, content);
+    reviewSummary.append(item);
+  });
+  const industryNames = selectedIndustries.map(item => item.value === "Sonstiges" ? "Sonstiges: " + otherIndustryInput.value.trim() : item.value).join(", ");
+  const industryItem = document.createElement("div");
+  industryItem.className = "review-item";
+  const industryHeading = document.createElement("strong");
+  industryHeading.textContent = "Branchen";
+  const industryContent = document.createElement("span");
+  industryContent.textContent = industryNames;
+  industryItem.append(industryHeading, industryContent);
+  reviewSummary.append(industryItem);
+  const files = Array.from(document.getElementById("referenceFiles").files || []).map(file => file.name);
+  if (files.length) {
+    const fileItem = document.createElement("div");
+    fileItem.className = "review-item";
+    const fileHeading = document.createElement("strong");
+    fileHeading.textContent = "Ausgewählte Referenzdateien";
+    const fileContent = document.createElement("span");
+    fileContent.textContent = files.join(", ");
+    fileItem.append(fileHeading, fileContent);
+    reviewSummary.append(fileItem);
+  }
+  reviewModal.hidden = false;
+}
+reviewButton.addEventListener("click", showApplicationReview);
+editApplicationButton.addEventListener("click", () => { reviewModal.hidden = true; });
+reviewModal.addEventListener("click", event => { if (event.target === reviewModal) reviewModal.hidden = true; });
+document.addEventListener("keydown", event => { if (event.key === "Escape" && !reviewModal.hidden) reviewModal.hidden = true; });
+submitButton.addEventListener("click", () => {
+  reviewModal.hidden = true;
+  applicationForm.requestSubmit();
 });
 
 applicationForm.addEventListener("submit", function(event) {
