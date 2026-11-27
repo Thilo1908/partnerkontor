@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -22,17 +21,23 @@
       font-size: 24px;
       font-weight: bold;
     }
+    .brand-partner { color: #fff; }
+    .brand-kontor { color: #d5ad67; }
     main {
-      max-width: 900px;
-      margin: 60px auto;
-      padding: 30px;
+      max-width: 1000px;
+      margin: 42px auto;
+      padding: 0 22px 40px;
     }
     .card {
       background: white;
-      padding: 30px;
+      padding: 28px;
       border-radius: 10px;
       box-shadow: 0 3px 15px #00000010;
+      margin-bottom: 22px;
     }
+    h1, h2 { margin-top: 0; color: #102943; }
+    h1 { font-size: 27px; }
+    h2 { font-size: 21px; }
     button {
       background: #102943;
       color: white;
@@ -40,29 +45,70 @@
       padding: 12px 20px;
       border-radius: 6px;
       cursor: pointer;
+      font-size: 15px;
     }
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
+    button:hover { background: #1b4265; }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    #logoutButton { margin-top: 8px; }
+    #status, #offersStatus { margin-top: 16px; }
+    .offer-list { display: grid; gap: 16px; }
+    .offer {
+      border: 1px solid #dce2e9;
+      border-left: 4px solid #c49b55;
+      border-radius: 8px;
+      padding: 20px;
+      background: #fff;
     }
-    #status { margin-top: 20px; }
+    .offer h3 { margin: 0 0 12px; color: #102943; font-size: 19px; }
+    .offer p { margin: 8px 0; line-height: 1.5; overflow-wrap: anywhere; }
+    .offer-meta { color: #536579; font-size: 14px; }
+    .offer-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .accept-button { background: #87662f; }
+    .accept-button:hover { background: #6e5125; }
+    .reject-button { background: #596575; }
+    .reject-button:hover { background: #414c5b; }
+    .offer-state {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 5px 9px;
+      border-radius: 4px;
+      background: #f3ead9;
+      color: #6f5122;
+      font-size: 13px;
+    }
+    .empty-state { color: #536579; padding: 12px 0; }
+    .error { color: #a12b2b; }
+    .success { color: #246b43; }
+    @media (max-width: 600px) {
+      main { margin: 22px auto; padding: 0 14px 28px; }
+      .card { padding: 20px 17px; }
+      header { padding: 18px 20px; font-size: 21px; }
+      .offer { padding: 16px; }
+      .offer-actions button { flex: 1 1 130px; }
+    }
   </style>
 </head>
 <body>
-  <header>PARTNERKONTOR</header>
+  <header><span class="brand-partner">PARTNER</span><span class="brand-kontor">KONTOR</span></header>
 
   <main>
-    <div class="card">
+    <section class="card">
       <h1>Partnerbereich</h1>
       <p id="partnerInfo">Partnerzugang wird geprüft ...</p>
       <button id="logoutButton" type="button">Abmelden</button>
-      <p id="status"></p>
-    </div>
+      <p id="status" aria-live="polite"></p>
+    </section>
+
+    <section class="card" id="offersSection" hidden>
+      <h2>Meine Vermittlungsangebote</h2>
+      <p>Hier findest du passende Kundenanfragen. Kundentelefonnummer und E-Mail-Adresse werden erst später freigegeben.</p>
+      <p id="offersStatus" aria-live="polite">Angebote werden geladen ...</p>
+      <div id="offerList" class="offer-list"></div>
+    </section>
   </main>
 
   <script>
     const SUPABASE_URL = "https://gzcsqwnkusvbngljqxbd.supabase.co";
-
     const SUPABASE_ANON_KEY = "sb_publishable_XK17n0IGaBcn6xVb0taypg_idMgx67I";
 
     const supabaseClient = window.supabase.createClient(
@@ -70,9 +116,129 @@
       SUPABASE_ANON_KEY
     );
 
-    async function pruefePartner() {
-      const info = document.getElementById("partnerInfo");
+    const info = document.getElementById("partnerInfo");
+    const offersSection = document.getElementById("offersSection");
+    const offersStatus = document.getElementById("offersStatus");
+    const offerList = document.getElementById("offerList");
 
+    function setOffersMessage(message, type = "") {
+      offersStatus.textContent = message;
+      offersStatus.className = type;
+    }
+
+    function formatDate(value) {
+      if (!value) return "";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "";
+      return new Intl.DateTimeFormat("de-DE", {
+        day: "2-digit", month: "2-digit", year: "numeric"
+      }).format(date);
+    }
+
+    async function ladeVermittlungsangebote() {
+      setOffersMessage("Vermittlungsangebote werden geladen ...");
+      offerList.replaceChildren();
+
+      const { data, error } = await supabaseClient.rpc("get_my_inquiry_matches");
+      if (error) {
+        setOffersMessage("Angebote konnten nicht geladen werden: " + error.message, "error");
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        setOffersMessage("Zurzeit liegen keine Vermittlungsangebote vor.");
+        return;
+      }
+
+      setOffersMessage(data.length + (data.length === 1 ? " Angebot gefunden." : " Angebote gefunden."));
+
+      data.forEach((offer) => {
+        const article = document.createElement("article");
+        article.className = "offer";
+
+        const title = document.createElement("h3");
+        title.textContent = offer.subject || "Kundenanfrage";
+        article.appendChild(title);
+
+        const area = document.createElement("p");
+        area.className = "offer-meta";
+        area.textContent = "Geschäftsbereich: " + (offer.business_area_name || "Nicht angegeben");
+        article.appendChild(area);
+
+        if (offer.postal_code) {
+          const postal = document.createElement("p");
+          postal.className = "offer-meta";
+          postal.textContent = "Postleitzahl: " + offer.postal_code;
+          article.appendChild(postal);
+        }
+
+        if (offer.description) {
+          const description = document.createElement("p");
+          description.textContent = offer.description;
+          article.appendChild(description);
+        }
+
+        const date = document.createElement("p");
+        date.className = "offer-meta";
+        date.textContent = "Eingegangen: " + (formatDate(offer.inquiry_created_at) || "–");
+        article.appendChild(date);
+
+        const state = document.createElement("span");
+        state.className = "offer-state";
+        state.textContent = offer.match_status === "accepted" ? "Von dir angenommen" : "Noch offen";
+        article.appendChild(state);
+
+        if (offer.match_status === "offered") {
+          const actions = document.createElement("div");
+          actions.className = "offer-actions";
+
+          const acceptButton = document.createElement("button");
+          acceptButton.type = "button";
+          acceptButton.className = "accept-button";
+          acceptButton.textContent = "Annehmen";
+          acceptButton.addEventListener("click", () => bearbeiteAngebot(offer.match_id, "accept", acceptButton, rejectButton));
+
+          const rejectButton = document.createElement("button");
+          rejectButton.type = "button";
+          rejectButton.className = "reject-button";
+          rejectButton.textContent = "Ablehnen";
+          rejectButton.addEventListener("click", () => bearbeiteAngebot(offer.match_id, "reject", acceptButton, rejectButton));
+
+          actions.append(acceptButton, rejectButton);
+          article.appendChild(actions);
+        }
+
+        offerList.appendChild(article);
+      });
+    }
+
+    async function bearbeiteAngebot(matchId, action, acceptButton, rejectButton) {
+      const confirmation = action === "accept"
+        ? "Möchtest du diese Anfrage verbindlich annehmen? Andere Partnerangebote für diese Anfrage werden dadurch beendet."
+        : "Möchtest du dieses Vermittlungsangebot ablehnen?";
+      if (!window.confirm(confirmation)) return;
+
+      acceptButton.disabled = true;
+      rejectButton.disabled = true;
+      setOffersMessage("Deine Auswahl wird gespeichert ...");
+
+      const functionName = action === "accept" ? "accept_inquiry_match" : "reject_inquiry_match";
+      const { error } = await supabaseClient.rpc(functionName, { p_match_id: matchId });
+
+      if (error) {
+        setOffersMessage("Die Auswahl konnte nicht gespeichert werden: " + error.message, "error");
+        acceptButton.disabled = false;
+        rejectButton.disabled = false;
+        return;
+      }
+
+      setOffersMessage(action === "accept"
+        ? "Anfrage angenommen. Die Kundendaten sind weiterhin noch nicht freigegeben."
+        : "Angebot abgelehnt.", "success");
+      await ladeVermittlungsangebote();
+    }
+
+    async function pruefePartner() {
       const { data: sessionData, error: sessionError } =
         await supabaseClient.auth.getSession();
 
@@ -82,7 +248,6 @@
       }
 
       const user = sessionData.session.user;
-
       const { data: partner, error } = await supabaseClient
         .from("partners")
         .select("partner_number, first_name, last_name, status")
@@ -99,37 +264,30 @@
         return;
       }
 
-      info.textContent =
-        "Willkommen " + partner.first_name + " " + partner.last_name +
+      info.textContent = "Willkommen " + partner.first_name + " " + partner.last_name +
         " (" + partner.partner_number + ").";
+      offersSection.hidden = false;
+      await ladeVermittlungsangebote();
     }
 
     document.getElementById("logoutButton").addEventListener("click", async () => {
       const button = document.getElementById("logoutButton");
       const status = document.getElementById("status");
-
       button.disabled = true;
       status.textContent = "Abmeldung wird durchgeführt ...";
 
-      // Abmeldung zuerst im Protokoll speichern.
       const { error: auditError } = await supabaseClient.rpc(
         "log_my_auth_event",
         { p_event_type: "logout" }
       );
+      if (auditError) console.error("Logout-Protokollierung fehlgeschlagen:", auditError);
 
-      if (auditError) {
-        console.error("Logout-Protokollierung fehlgeschlagen:", auditError);
-      }
-
-      // Danach die Sitzung beenden.
       const { error: logoutError } = await supabaseClient.auth.signOut();
-
       if (logoutError) {
         status.textContent = "Abmeldung fehlgeschlagen: " + logoutError.message;
         button.disabled = false;
         return;
       }
-
       window.location.href = "login.html";
     });
 
