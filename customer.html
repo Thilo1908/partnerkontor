@@ -55,8 +55,10 @@ body { font-family: Arial, sans-serif; color: #f5f3ed; }
 .form-field { display: flex; flex-direction: column; gap: 7px; }
 .form-field.full { grid-column: 1 / -1; }
 label { font-weight: 600; color: #f0dfb7; }
-input, textarea { width: 100%; padding: 12px; border: 1px solid rgba(201,166,91,.75); border-radius: 6px; font: inherit; color: #fff; background: rgba(1,8,20,.72); }
+input, textarea, select { width: 100%; padding: 12px; border: 1px solid rgba(201,166,91,.75); border-radius: 6px; font: inherit; color: #fff; background: rgba(1,8,20,.72); }
 input::placeholder, textarea::placeholder { color: #b9c0ca; }
+select { padding: 12px; border: 1px solid rgba(201,166,91,.75); border-radius: 6px; font: inherit; color: #fff; background: rgba(1,8,20,.92); }
+select option { color: #172033; background: #fff; }
 textarea { min-height: 120px; resize: vertical; }
 /* Betreff- und Beschreibungsfeld innen weiß */
 #requestSubject, #requestDescription { background: #ffffff !important; color: #172033 !important; border: 1px solid rgba(201,166,91,.75); }
@@ -127,6 +129,12 @@ button:active:not(:disabled), .gold-button:active:not(:disabled) {
 <p class="muted">Beschreibe kurz, wobei du Unterstützung benötigst. Deine Anfrage wird deinem Kundenkonto zugeordnet.</p>
 <form id="requestForm">
 <div class="form-grid">
+<div class="form-field full">
+<label for="requestBusinessArea">Geschäftsbereich *</label>
+<select id="requestBusinessArea" name="business_area_id" required>
+<option value="">Geschäftsbereich auswählen</option>
+</select>
+</div>
 <div class="form-field full">
 <label for="requestSubject">Betreff *</label>
 <input id="requestSubject" maxlength="160" name="subject" placeholder="Worum geht es?" required=""/>
@@ -223,7 +231,35 @@ button:active:not(:disabled), .gold-button:active:not(:disabled) {
     document.getElementById("newRequestCard").hidden = false;
     document.getElementById("requestsCard").hidden = false;
 
+    await loadBusinessAreas();
     await loadRequests();
+  }
+
+  // Vorhandene Geschäftsbereiche aus Supabase für das Anfrageformular laden.
+  async function loadBusinessAreas() {
+    const select = document.getElementById("requestBusinessArea");
+    select.disabled = true;
+
+    const { data, error } = await supabaseClient
+      .from("business_areas")
+      .select("id, name")
+      .order("name", { ascending: true });
+
+    if (error) {
+      console.error("Geschäftsbereiche konnten nicht geladen werden:", error);
+      select.innerHTML = '<option value="">Geschäftsbereiche konnten nicht geladen werden</option>';
+      return;
+    }
+
+    select.innerHTML = '<option value="">Geschäftsbereich auswählen</option>';
+    (data || []).forEach((area) => {
+      const option = document.createElement("option");
+      option.value = area.id;
+      option.textContent = area.name;
+      select.appendChild(option);
+    });
+
+    select.disabled = false;
   }
 
   // Eigene Anfragen laden. Die Datenbank-RLS muss den Zugriff
@@ -289,6 +325,7 @@ button:active:not(:disabled), .gold-button:active:not(:disabled) {
     const message = document.getElementById("requestFormMessage");
     const subject = document.getElementById("requestSubject").value.trim();
     const description = document.getElementById("requestDescription").value.trim();
+    const businessAreaId = document.getElementById("requestBusinessArea").value;
 
     if (!currentCustomer || !currentUser) {
       message.className = "error-message";
@@ -296,9 +333,9 @@ button:active:not(:disabled), .gold-button:active:not(:disabled) {
       return;
     }
 
-    if (!subject || !description) {
+    if (!businessAreaId || !subject || !description) {
       message.className = "error-message";
-      message.textContent = "Bitte fülle Betreff und Beschreibung aus.";
+      message.textContent = "Bitte wähle einen Geschäftsbereich aus und fülle Betreff und Beschreibung aus.";
       return;
     }
 
@@ -313,6 +350,7 @@ button:active:not(:disabled), .gold-button:active:not(:disabled) {
       email: currentCustomer.email || currentUser.email || "",
       phone: currentCustomer.phone || null,
       postal_code: currentCustomer.postal_code || null,
+      business_area_id: businessAreaId,
       subject,
       description
     };
