@@ -415,258 +415,203 @@ main { flex:1 1 auto; min-height:0; padding:12px 16px; gap:12px; }
 <script>
 
 const SUPABASE_URL = "https://gzcsqwnkusvbngljqxbd.supabase.co";
-
 const SUPABASE_ANON_KEY = "sb_publishable_XK17n0IGaBcn6xVb0taypg_idMgx67I";
 
+// Supabase erkennt die Rückkehr aus E-Mail-Links automatisch.
 const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
-  SUPABASE_ANON_KEY
+  SUPABASE_ANON_KEY,
+  { auth: { detectSessionInUrl: true, persistSession: true, autoRefreshToken: true } }
 );
 
-
-// PASSWORTANZEIGE
-
+const message = document.getElementById("message");
+const loginForm = document.getElementById("loginForm");
+const passwordSetup = document.getElementById("passwordSetup");
+const passwordSetupForm = document.getElementById("passwordSetupForm");
 const passwordInput = document.getElementById("password");
 const togglePassword = document.getElementById("togglePassword");
+const forgotPasswordLink = document.getElementById("forgotPassword");
+let recoveryMode = false;
+let recoveryReady = false;
 
+function showMessage(text) { message.textContent = text; }
+
+function toggleSetupPassword(id, button) {
+  const input = document.getElementById(id);
+  const visible = input.type === "password";
+  input.type = visible ? "text" : "password";
+  button.setAttribute("aria-label", visible ? "Passwort verbergen" : "Passwort anzeigen");
+}
+
+// Passwort im normalen Login nur während des Gedrückthaltens anzeigen.
 function showPassword() {
   passwordInput.type = "text";
   togglePassword.setAttribute("aria-pressed", "true");
   togglePassword.setAttribute("aria-label", "Passwort verbergen");
 }
-
 function hidePassword() {
   passwordInput.type = "password";
   togglePassword.setAttribute("aria-pressed", "false");
   togglePassword.setAttribute("aria-label", "Passwort anzeigen");
 }
-
-togglePassword.addEventListener("pointerdown", function(event) {
-  event.preventDefault();
-  showPassword();
-});
-
+togglePassword.addEventListener("pointerdown", event => { event.preventDefault(); showPassword(); });
 document.addEventListener("pointerup", hidePassword);
 document.addEventListener("pointercancel", hidePassword);
 window.addEventListener("blur", hidePassword);
-
-
-// TASTATURBEDIENUNG
-
-togglePassword.addEventListener("keydown", function(event) {
-  if (event.key === " " || event.key === "Enter") {
-    event.preventDefault();
-    showPassword();
-  }
+togglePassword.addEventListener("keydown", event => {
+  if (event.key === " " || event.key === "Enter") { event.preventDefault(); showPassword(); }
+});
+togglePassword.addEventListener("keyup", event => {
+  if (event.key === " " || event.key === "Enter") hidePassword();
 });
 
-togglePassword.addEventListener("keyup", function(event) {
-  if (event.key === " " || event.key === "Enter") {
-    hidePassword();
-  }
-});
-
-
-// ANMELDUNG
-
-document.getElementById("loginForm").addEventListener("submit", async function(e) {
-
-  e.preventDefault();
-
-  const message = document.getElementById("message");
-
-  message.textContent = "Anmeldung wird geprüft ...";
-
-  const email = document.getElementById("email").value.trim();
-  const password = passwordInput.value;
-
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  hidePassword();
-
-  if (error) {
-    message.textContent = "Anmeldung fehlgeschlagen: " + error.message;
-    return;
-  }
-
-  message.textContent = "Anmeldung erfolgreich. Das Protokoll wird erstellt ...";
-
-
-  // LOGIN IM ZENTRALEN PROTOKOLL SPEICHERN
-
-  const { error: auditError } = await supabaseClient.rpc(
-    "log_my_auth_event",
-    { p_event_type: "login" }
-  );
-
-  if (auditError) {
-    console.error("Login-Protokollierung fehlgeschlagen:", auditError);
-  }
-
-
-  // ADMINISTRATOR PRÜFEN
-
-  const { data: admin, error: adminError } =
-    await supabaseClient.rpc("is_app_admin");
-
-  if (adminError) {
-    message.textContent =
-      "Anmeldung erfolgreich, aber die Berechtigungen konnten nicht geprüft werden.";
-    return;
-  }
-
-  if (admin) {
-    message.textContent = "Administrator-Anmeldung erfolgreich.";
-    window.location.href = "admin.html";
-    return;
-  }
-
-
-  // PARTNER PRÜFEN
-
-  const { data: partner, error: partnerError } = await supabaseClient
-    .from("partners")
-    .select("id, partner_number, status")
-    .eq("auth_user_id", data.user.id)
-    .maybeSingle();
-
-  if (partnerError) {
-    message.textContent =
-      "Partnerprüfung fehlgeschlagen: " + partnerError.message;
-    return;
-  }
-
-  if (partner && partner.status === "approved") {
-    message.textContent = "Partner-Anmeldung erfolgreich.";
-    window.location.href = "partner.html";
-    return;
-  }
-
-
-  // KUNDE PRÜFEN
-
-  const { data: customer, error: customerError } = await supabaseClient
-    .from("customers")
-    .select("id, status")
-    .eq("auth_user_id", data.user.id)
-    .maybeSingle();
-
-  if (customerError) {
-    message.textContent =
-      "Kundenprüfung fehlgeschlagen: " + customerError.message;
-    return;
-  }
-
-  if (customer && customer.status === "active") {
-    message.textContent = "Kunden-Anmeldung erfolgreich.";
-    window.location.href = "customer.html";
-    return;
-  }
-
-  message.textContent =
-    "Angemeldet, aber noch kein freigegebener Kunden- oder Partnerzugang zugeordnet.";
-
-});
-
-// PASSWORT ZURÜCKSETZEN
-
-const forgotPasswordLink = document.getElementById("forgotPassword");
-
-forgotPasswordLink.addEventListener("click", async function(event) {
-  event.preventDefault();
-
-  const emailInput = document.getElementById("email");
-  const message = document.getElementById("message");
-  const email = emailInput.value.trim();
-
-  if (!email) {
-    message.textContent = "Bitte gib zuerst deine E-Mail-Adresse ein.";
-    emailInput.focus();
-    return;
-  }
-
-  if (!emailInput.checkValidity()) {
-    emailInput.reportValidity();
-    return;
-  }
-
-  message.textContent = "Die Anfrage zum Zurücksetzen des Passworts wird gesendet ...";
-  forgotPasswordLink.style.pointerEvents = "none";
-
-  const redirectTo = window.location.origin + window.location.pathname;
-
-  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-    redirectTo: redirectTo
-  });
-
-  forgotPasswordLink.style.pointerEvents = "";
-
-  if (error) {
-    message.textContent = "Die E-Mail konnte nicht versendet werden: " + error.message;
-    return;
-  }
-
-  message.textContent =
-    "Wenn für diese E-Mail-Adresse ein Konto besteht, wurde eine E-Mail zum Zurücksetzen versendet. Bitte prüfe auch deinen Spam-Ordner.";
-});
-
-// PASSWORT-EINRICHTUNG FÜR EINGELADENE PARTNER
-
-const passwordSetup = document.getElementById("passwordSetup");
-const passwordSetupForm = document.getElementById("passwordSetupForm");
-const loginForm = document.getElementById("loginForm");
-
-const inviteParams = new URLSearchParams(
-  window.location.hash.substring(1)
-);
-
-const inviteType =
-  inviteParams.get("type") ||
-  new URLSearchParams(window.location.search).get("type");
-
-if (inviteType === "invite" || inviteType === "recovery") {
+function showPasswordSetup() {
+  recoveryMode = true;
   passwordSetup.style.display = "block";
   loginForm.style.display = "none";
-
-  document.getElementById("message").textContent =
-    "Bitte lege jetzt dein persönliches Passwort fest.";
+  showMessage("Bitte gib dein neues Passwort zweimal ein und bestätige es mit „Passwort speichern“.");
 }
 
+// Rückkehr aus Supabase: unterstützt sowohl den klassischen Hash-Link
+// (access_token/type=recovery) als auch den PKCE-Code in der URL.
+async function initializeAuthReturn() {
+  const url = new URL(window.location.href);
+  const hashParams = new URLSearchParams(url.hash.replace(/^#/, ""));
+  const queryType = url.searchParams.get("type");
+  const hashType = hashParams.get("type");
+  const hasRecoveryMarker = queryType === "recovery" || queryType === "invite" ||
+    hashType === "recovery" || hashType === "invite";
+  const code = url.searchParams.get("code");
+
+  if (code) {
+    showMessage("Der sichere Link wird geprüft ...");
+    const { error } = await supabaseClient.auth.exchangeCodeForSession(code);
+    if (error) {
+      showMessage("Der Link konnte nicht bestätigt werden. Bitte fordere einen neuen Passwort-Link an. Hinweis: " + error.message);
+      return;
+    }
+    // Den einmaligen Code aus der Adresszeile entfernen.
+    url.searchParams.delete("code");
+    url.searchParams.delete("type");
+    window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
+  }
+
+  // Supabase kann den Hash-Token asynchron verarbeiten. Sitzung kurz danach abfragen.
+  const { data, error } = await supabaseClient.auth.getSession();
+  if (error) {
+    showMessage("Die Anmeldung über den E-Mail-Link konnte nicht geprüft werden: " + error.message);
+    return;
+  }
+
+  if (hasRecoveryMarker || (data.session && (hashType === "recovery" || queryType === "recovery"))) {
+    if (!data.session) {
+      showMessage("Der Passwort-Link wird noch geprüft. Bitte warte einen Moment oder öffne den Link erneut.");
+      return;
+    }
+    recoveryReady = true;
+    showPasswordSetup();
+  }
+}
+
+// Falls Supabase den Recovery-Status erst nach dem Laden meldet.
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  if (event === "PASSWORD_RECOVERY" && session) {
+    recoveryReady = true;
+    showPasswordSetup();
+  }
+});
+
+// Anmeldung
+loginForm.addEventListener("submit", async function(event) {
+  event.preventDefault();
+  showMessage("Anmeldung wird geprüft ...");
+  const email = document.getElementById("email").value.trim();
+  const password = passwordInput.value;
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  hidePassword();
+  if (error) { showMessage("Anmeldung fehlgeschlagen: " + error.message); return; }
+
+  showMessage("Anmeldung erfolgreich. Zugang wird geprüft ...");
+  const { error: auditError } = await supabaseClient.rpc("log_my_auth_event", { p_event_type: "login" });
+  if (auditError) console.error("Login-Protokollierung fehlgeschlagen:", auditError);
+
+  const { data: admin, error: adminError } = await supabaseClient.rpc("is_app_admin");
+  if (adminError) { showMessage("Anmeldung erfolgreich, aber die Administratorrechte konnten nicht geprüft werden: " + adminError.message); return; }
+  if (admin) { window.location.href = "admin.html"; return; }
+
+  const { data: partner, error: partnerError } = await supabaseClient
+    .from("partners").select("id, partner_number, status")
+    .eq("auth_user_id", data.user.id).maybeSingle();
+  if (partnerError) { showMessage("Partnerprüfung fehlgeschlagen: " + partnerError.message); return; }
+  if (partner && partner.status === "approved") { window.location.href = "partner.html"; return; }
+
+  const { data: customer, error: customerError } = await supabaseClient
+    .from("customers").select("id, status")
+    .eq("auth_user_id", data.user.id).maybeSingle();
+  if (customerError) { showMessage("Kundenprüfung fehlgeschlagen: " + customerError.message); return; }
+  if (customer && customer.status === "active") { window.location.href = "customer.html"; return; }
+
+  showMessage("Du bist angemeldet, aber diesem Konto ist noch kein freigegebener Kunden- oder Partnerzugang zugeordnet.");
+});
+
+// Passwort-Reset-E-Mail anfordern
+forgotPasswordLink.addEventListener("click", async function(event) {
+  event.preventDefault();
+  const emailInput = document.getElementById("email");
+  const email = emailInput.value.trim();
+  if (!email) { showMessage("Bitte gib zuerst deine E-Mail-Adresse ein."); emailInput.focus(); return; }
+  if (!emailInput.checkValidity()) { emailInput.reportValidity(); return; }
+
+  showMessage("Die Anfrage zum Zurücksetzen des Passworts wird gesendet ...");
+  forgotPasswordLink.style.pointerEvents = "none";
+  try {
+    const redirectTo = window.location.origin + window.location.pathname;
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
+    if (error) showMessage("Die E-Mail konnte nicht versendet werden: " + error.message);
+    else showMessage("Wenn für diese E-Mail-Adresse ein Konto besteht, wurde eine E-Mail zum Zurücksetzen versendet. Bitte öffne den Link in derselben Browser-App und prüfe auch den Spam-Ordner.");
+  } catch (error) {
+    showMessage("Beim Senden ist ein Fehler aufgetreten: " + error.message);
+  } finally {
+    forgotPasswordLink.style.pointerEvents = "";
+  }
+});
+
+// Neues Passwort verbindlich speichern
 passwordSetupForm.addEventListener("submit", async function(event) {
   event.preventDefault();
-
   const newPassword = document.getElementById("newPassword").value;
   const confirmPassword = document.getElementById("confirmPassword").value;
-  const message = document.getElementById("message");
-
-  if (newPassword.length < 8) {
-    message.textContent = "Das Passwort muss mindestens 8 Zeichen haben.";
-    return;
+  if (newPassword.length < 8) { showMessage("Das Passwort muss mindestens 8 Zeichen haben."); return; }
+  if (newPassword !== confirmPassword) { showMessage("Die beiden Passwörter stimmen nicht überein."); return; }
+  if (!recoveryReady) {
+    const { data } = await supabaseClient.auth.getSession();
+    if (!data.session) { showMessage("Der Passwort-Link ist nicht mehr gültig oder wurde nicht vollständig geöffnet. Fordere bitte einen neuen Link an."); return; }
+    recoveryReady = true;
   }
 
-  if (newPassword !== confirmPassword) {
-    message.textContent = "Die beiden Passwörter stimmen nicht überein.";
-    return;
+  const saveButton = passwordSetupForm.querySelector('button[type="submit"]');
+  saveButton.disabled = true;
+  showMessage("Passwort wird sicher gespeichert ...");
+  try {
+    const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+    if (error) { showMessage("Das Passwort konnte nicht gespeichert werden: " + error.message); return; }
+    passwordSetupForm.reset();
+    passwordSetup.style.display = "none";
+    loginForm.style.display = "block";
+    recoveryMode = false;
+    recoveryReady = false;
+    await supabaseClient.auth.signOut();
+    showMessage("Dein neues Passwort wurde erfolgreich gespeichert. Du kannst dich jetzt mit deiner E-Mail-Adresse und dem neuen Passwort anmelden.");
+  } catch (error) {
+    showMessage("Beim Speichern ist ein Fehler aufgetreten: " + error.message);
+  } finally {
+    saveButton.disabled = false;
   }
+});
 
-  message.textContent = "Passwort wird gespeichert ...";
-
-  const { error } = await supabaseClient.auth.updateUser({
-    password: newPassword
-  });
-
-  if (error) {
-    message.textContent = "Fehler: " + error.message;
-    return;
-  }
-
-  message.textContent =
-    "Passwort erfolgreich gespeichert. Du wirst weitergeleitet ...";
-
-  window.location.href = "partner.html";
+initializeAuthReturn().catch(error => {
+  console.error("Fehler beim Prüfen des Passwort-Links:", error);
+  showMessage("Der Passwort-Link konnte nicht verarbeitet werden. Bitte fordere einen neuen Link an.");
 });
 
 </script>
